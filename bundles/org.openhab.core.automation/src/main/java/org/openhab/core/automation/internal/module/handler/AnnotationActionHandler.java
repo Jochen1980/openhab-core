@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -23,8 +23,7 @@ import java.util.Map.Entry;
 
 import org.openhab.core.automation.Action;
 import org.openhab.core.automation.annotation.ActionInput;
-import org.openhab.core.automation.handler.ActionHandler;
-import org.openhab.core.automation.handler.BaseModuleHandler;
+import org.openhab.core.automation.handler.BaseActionModuleHandler;
 import org.openhab.core.automation.type.ActionType;
 import org.openhab.core.automation.type.Input;
 import org.openhab.core.automation.type.Output;
@@ -34,10 +33,9 @@ import org.slf4j.LoggerFactory;
 /**
  * ActionHandler which is dynamically created upon annotation on services
  *
- * @author Stefan Triller - initial contribution
- *
+ * @author Stefan Triller - Initial contribution
  */
-public class AnnotationActionHandler extends BaseModuleHandler<Action> implements ActionHandler {
+public class AnnotationActionHandler extends BaseActionModuleHandler {
 
     private static final String MODULE_RESULT = "result";
 

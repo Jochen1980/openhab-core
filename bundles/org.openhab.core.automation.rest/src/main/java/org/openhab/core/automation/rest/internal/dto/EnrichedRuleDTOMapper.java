@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -12,6 +12,7 @@
  */
 package org.openhab.core.automation.rest.internal.dto;
 
+import org.openhab.core.automation.ManagedRuleProvider;
 import org.openhab.core.automation.Rule;
 import org.openhab.core.automation.RuleManager;
 import org.openhab.core.automation.dto.RuleDTOMapper;
@@ -19,15 +20,17 @@ import org.openhab.core.automation.dto.RuleDTOMapper;
 /**
  * This is a utility class to convert between the respective object and its DTO.
  *
- * @author Markus Rathgeb - Initial contribution and API
+ * @author Markus Rathgeb - Initial contribution
+ * @author Kai Kreuzer - added editable field
  */
 public class EnrichedRuleDTOMapper extends RuleDTOMapper {
 
-    public static EnrichedRuleDTO map(final Rule rule, final RuleManager ruleEngine) {
+    public static EnrichedRuleDTO map(final Rule rule, final RuleManager ruleEngine,
+            final ManagedRuleProvider managedRuleProvider) {
         final EnrichedRuleDTO enrichedRuleDto = new EnrichedRuleDTO();
         fillProperties(rule, enrichedRuleDto);
         enrichedRuleDto.status = ruleEngine.getStatusInfo(rule.getUID());
+        enrichedRuleDto.editable = managedRuleProvider.get(rule.getUID()) != null;
         return enrichedRuleDto;
     }
-
 }

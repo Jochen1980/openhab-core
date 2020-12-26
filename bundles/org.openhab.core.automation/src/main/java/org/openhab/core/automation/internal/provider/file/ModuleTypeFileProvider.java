@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -17,6 +17,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Locale;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.automation.type.ModuleType;
 import org.openhab.core.automation.type.ModuleTypeProvider;
 
@@ -24,9 +26,9 @@ import org.openhab.core.automation.type.ModuleTypeProvider;
  * This class is implementation of {@link ModuleTypeProvider}. It extends functionality of {@link AbstractFileProvider}
  * for importing the {@link ModuleType}s from local files.
  *
- * @author Ana Dimova - Initial Contribution
- *
+ * @author Ana Dimova - Initial contribution
  */
+@NonNullByDefault
 public abstract class ModuleTypeFileProvider extends AbstractFileProvider<ModuleType> implements ModuleTypeProvider {
 
     public ModuleTypeFileProvider() {
@@ -45,17 +47,17 @@ public abstract class ModuleTypeFileProvider extends AbstractFileProvider<Module
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends ModuleType> T getModuleType(String UID, Locale locale) {
+    public <T extends ModuleType> @Nullable T getModuleType(String UID, @Nullable Locale locale) {
         return (T) providedObjectsHolder.get(UID);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends ModuleType> Collection<T> getModuleTypes(Locale locale) {
+    public <T extends ModuleType> Collection<T> getModuleTypes(@Nullable Locale locale) {
         Collection<ModuleType> values = providedObjectsHolder.values();
         if (values.isEmpty()) {
-            return Collections.<T>emptyList();
+            return Collections.emptyList();
         }
-        return (Collection<T>) new LinkedList<ModuleType>(values);
+        return (Collection<T>) new LinkedList<>(values);
     }
 }

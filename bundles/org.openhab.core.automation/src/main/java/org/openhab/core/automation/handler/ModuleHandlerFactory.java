@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -26,7 +26,7 @@ import org.openhab.core.automation.Rule;
  * <p>
  * {@link ModuleHandlerFactory} implementations must be registered as services in the OSGi framework.
  *
- * @author Yordan Mihaylov - Initial Contribution
+ * @author Yordan Mihaylov - Initial contribution
  * @author Benedikt Niehues - change behavior for unregistering ModuleHandler
  */
 @NonNullByDefault
@@ -50,7 +50,7 @@ public interface ModuleHandlerFactory {
      * Creates a {@link ModuleHandler} instance needed for the operation of the {@link Module}s
      * included in {@link Rule}s.
      *
-     * @param module  the {@link Module} for which a {@link ModuleHandler} instance must be created.
+     * @param module the {@link Module} for which a {@link ModuleHandler} instance must be created.
      * @param ruleUID the identifier of the {@link Rule} that the given module belongs to.
      * @return a new {@link ModuleHandler} instance, or {@code null} if the type of the
      *         {@code module} parameter is not supported by this factory.
@@ -62,10 +62,9 @@ public interface ModuleHandlerFactory {
      * for handling the specified {@code module} in the {@link Rule} with the specified {@code ruleUID}.
      * If no other {@link Rule}s and {@link Module}s use this {@code handler} instance, it should be disposed.
      *
-     * @param module  the {@link Module} for which the {@code handler} was created.
+     * @param module the {@link Module} for which the {@code handler} was created.
      * @param ruleUID the identifier of the {@link Rule} that the given module belongs to.
      * @param handler the {@link ModuleHandler} instance that is no longer needed.
      */
     public void ungetHandler(Module module, String ruleUID, ModuleHandler handler);
-
 }

@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -13,13 +13,15 @@
 package org.openhab.core.automation.module.media.internal;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
-import org.eclipse.smarthome.core.audio.AudioManager;
-import org.eclipse.smarthome.core.voice.VoiceManager;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.core.audio.AudioManager;
 import org.openhab.core.automation.module.script.ScriptExtensionProvider;
+import org.openhab.core.voice.VoiceManager;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -27,11 +29,12 @@ import org.osgi.service.component.annotations.Reference;
  * This is a scope provider for features that are related to audio and voice support.
  *
  * @author Kai Kreuzer - Initial contribution
- *
  */
 @Component
+@NonNullByDefault
 public class MediaScriptScopeProvider implements ScriptExtensionProvider {
-    Map<String, Object> elements = new HashMap<>();
+
+    private final Map<String, Object> elements = new HashMap<>();
 
     @Reference
     protected void setAudioManager(AudioManager audioManager) {
@@ -53,12 +56,12 @@ public class MediaScriptScopeProvider implements ScriptExtensionProvider {
 
     @Override
     public Collection<String> getDefaultPresets() {
-        return Collections.singleton("media");
+        return Set.of("media");
     }
 
     @Override
     public Collection<String> getPresets() {
-        return Collections.singleton("media");
+        return Set.of("media");
     }
 
     @Override
@@ -67,7 +70,7 @@ public class MediaScriptScopeProvider implements ScriptExtensionProvider {
     }
 
     @Override
-    public Object get(String scriptIdentifier, String type) {
+    public @Nullable Object get(String scriptIdentifier, String type) {
         return elements.get(type);
     }
 
@@ -79,5 +82,4 @@ public class MediaScriptScopeProvider implements ScriptExtensionProvider {
     @Override
     public void unload(String scriptIdentifier) {
     }
-
 }

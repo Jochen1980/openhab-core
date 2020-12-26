@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -18,6 +18,7 @@ import java.util.Optional;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.core.automation.Condition;
 import org.openhab.core.automation.handler.ConditionHandler;
 import org.openhab.core.automation.module.script.ScriptEngineManager;
@@ -28,14 +29,14 @@ import org.slf4j.LoggerFactory;
  * This handler can evaluate a condition based on a script.
  *
  * @author Kai Kreuzer - Initial contribution
- * @author Simon Merschjohann
- *
+ * @author Simon Merschjohann - Initial contribution
  */
+@NonNullByDefault
 public class ScriptConditionHandler extends AbstractScriptModuleHandler<Condition> implements ConditionHandler {
 
-    public final Logger logger = LoggerFactory.getLogger(ScriptConditionHandler.class);
+    public static final String TYPE_ID = "script.ScriptCondition";
 
-    public static final String SCRIPT_CONDITION = "script.ScriptCondition";
+    private final Logger logger = LoggerFactory.getLogger(ScriptConditionHandler.class);
 
     public ScriptConditionHandler(Condition module, String ruleUID, ScriptEngineManager scriptEngineManager) {
         super(module, ruleUID, scriptEngineManager);
@@ -54,7 +55,7 @@ public class ScriptConditionHandler extends AbstractScriptModuleHandler<Conditio
                 if (returnVal instanceof Boolean) {
                     result = (boolean) returnVal;
                 } else {
-                    logger.error("Script did not return a boolean value, but '{}'", returnVal.toString());
+                    logger.error("Script did not return a boolean value, but '{}'", returnVal);
                 }
             } catch (ScriptException e) {
                 logger.error("Script execution failed: {}", e.getMessage());
@@ -63,5 +64,4 @@ public class ScriptConditionHandler extends AbstractScriptModuleHandler<Conditio
 
         return result;
     }
-
 }

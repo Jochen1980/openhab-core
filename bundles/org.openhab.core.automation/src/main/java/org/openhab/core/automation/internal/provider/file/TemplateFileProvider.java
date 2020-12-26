@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -17,6 +17,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Locale;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.automation.template.RuleTemplate;
 import org.openhab.core.automation.template.RuleTemplateProvider;
 import org.openhab.core.automation.template.TemplateProvider;
@@ -25,9 +27,9 @@ import org.openhab.core.automation.template.TemplateProvider;
  * This class is implementation of {@link TemplateProvider}. It extends functionality of {@link AbstractFileProvider}
  * for importing the {@link RuleTemplate}s from local files.
  *
- * @author Ana Dimova - Initial Contribution
- *
+ * @author Ana Dimova - Initial contribution
  */
+@NonNullByDefault
 public abstract class TemplateFileProvider extends AbstractFileProvider<RuleTemplate> implements RuleTemplateProvider {
 
     public TemplateFileProvider() {
@@ -45,17 +47,16 @@ public abstract class TemplateFileProvider extends AbstractFileProvider<RuleTemp
     }
 
     @Override
-    public RuleTemplate getTemplate(String UID, Locale locale) {
+    public @Nullable RuleTemplate getTemplate(String UID, @Nullable Locale locale) {
         return providedObjectsHolder.get(UID);
     }
 
     @Override
-    public Collection<RuleTemplate> getTemplates(Locale locale) {
+    public Collection<RuleTemplate> getTemplates(@Nullable Locale locale) {
         Collection<RuleTemplate> values = providedObjectsHolder.values();
         if (values.isEmpty()) {
-            return Collections.<RuleTemplate> emptyList();
+            return Collections.emptyList();
         }
-        return new LinkedList<RuleTemplate>(values);
+        return new LinkedList<>(values);
     }
-
 }

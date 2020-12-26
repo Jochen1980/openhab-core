@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -15,11 +15,10 @@ package org.openhab.core.automation.internal.module.handler;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.smarthome.config.core.Configuration;
 import org.openhab.core.automation.Action;
 import org.openhab.core.automation.RuleRegistry;
-import org.openhab.core.automation.handler.ActionHandler;
-import org.openhab.core.automation.handler.BaseModuleHandler;
+import org.openhab.core.automation.handler.BaseActionModuleHandler;
+import org.openhab.core.config.core.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,11 +38,10 @@ import org.slf4j.LoggerFactory;
  * }
  * </pre>
  *
- * @author Plamen Peev - Initial contribution and API
+ * @author Plamen Peev - Initial contribution
  * @author Kai Kreuzer - use rule engine instead of registry
- *
  */
-public class RuleEnablementActionHandler extends BaseModuleHandler<Action> implements ActionHandler {
+public class RuleEnablementActionHandler extends BaseActionModuleHandler {
 
     /**
      * This filed contains the type of this handler so it can be recognized from the factory.
@@ -68,7 +66,7 @@ public class RuleEnablementActionHandler extends BaseModuleHandler<Action> imple
     /**
      * This field stores the UIDs of the rules to which the action will be applied.
      */
-    private final List<String> UIDs;
+    private final List<String> uids;
 
     /**
      * This field stores the value for the setEnabled() method of {@link RuleRegistry}.
@@ -86,15 +84,15 @@ public class RuleEnablementActionHandler extends BaseModuleHandler<Action> imple
         }
         this.enable = enable.booleanValue();
 
-        UIDs = (List<String>) config.get(RULE_UIDS_KEY);
-        if (UIDs == null) {
+        uids = (List<String>) config.get(RULE_UIDS_KEY);
+        if (uids == null) {
             throw new IllegalArgumentException("'ruleUIDs' property can not be null.");
         }
     }
 
     @Override
     public Map<String, Object> execute(Map<String, Object> context) {
-        for (String uid : UIDs) {
+        for (String uid : uids) {
             if (callback != null) {
                 callback.setEnabled(uid, enable);
             } else {

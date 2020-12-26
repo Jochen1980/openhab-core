@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -33,8 +33,7 @@ import org.openhab.core.automation.type.ModuleType;
  * <li>{@link AutomationCommands#LIST_RULES}
  * </ul>
  *
- * @author Ana Dimova - Initial Contribution
- *
+ * @author Ana Dimova - Initial contribution
  */
 public class AutomationCommandList extends AutomationCommand {
 
@@ -110,29 +109,29 @@ public class AutomationCommandList extends AutomationCommand {
     protected String parseOptionsAndParameters(String[] parameterValues) {
         boolean getId = true;
         boolean getLocale = true;
-        for (int i = 0; i < parameterValues.length; i++) {
-            if (null == parameterValues[i]) {
+        for (String parameterValue : parameterValues) {
+            if (null == parameterValue) {
                 continue;
             }
-            if (parameterValues[i].charAt(0) == '-') {
-                if (parameterValues[i].equals(OPTION_ST)) {
+            if (parameterValue.charAt(0) == '-') {
+                if (OPTION_ST.equals(parameterValue)) {
                     st = true;
                     continue;
                 }
-                return String.format("Unsupported option: %s", parameterValues[i]);
+                return String.format("Unsupported option: %s", parameterValue);
             }
             if (getId) {
-                id = parameterValues[i];
+                id = parameterValue;
                 getId = false;
                 continue;
             }
             if (getLocale) {
-                String l = parameterValues[i];
+                String l = parameterValue;
                 locale = new Locale(l);
                 getLocale = false;
             }
             if (getId && getLocale) {
-                return String.format("Unsupported parameter: %s", parameterValues[i]);
+                return String.format("Unsupported parameter: %s", parameterValue);
             }
         }
         return SUCCESS;
@@ -146,7 +145,7 @@ public class AutomationCommandList extends AutomationCommand {
      */
     private String listRules() {
         Collection<Rule> collection = autoCommands.getRules();
-        Map<String, Rule> rules = new Hashtable<String, Rule>();
+        Map<String, Rule> rules = new Hashtable<>();
         Map<String, String> listRules = null;
         if (collection != null && !collection.isEmpty()) {
             addCollection(collection, rules);
@@ -188,7 +187,7 @@ public class AutomationCommandList extends AutomationCommand {
      */
     private String listTemplates() {
         Collection<RuleTemplate> collection = autoCommands.getTemplates(locale);
-        Map<String, Template> templates = new Hashtable<String, Template>();
+        Map<String, Template> templates = new Hashtable<>();
         Map<String, String> listTemplates = null;
         if (collection != null && !collection.isEmpty()) {
             addCollection(collection, templates);
@@ -230,7 +229,7 @@ public class AutomationCommandList extends AutomationCommand {
      *         command {@link AutomationCommands#LIST_MODULE_TYPES}.
      */
     private String listModuleTypes() {
-        Map<String, ModuleType> moduleTypes = new Hashtable<String, ModuleType>();
+        Map<String, ModuleType> moduleTypes = new Hashtable<>();
         Collection<? extends ModuleType> collection = autoCommands.getTriggers(locale);
         addCollection(collection, moduleTypes);
         collection = autoCommands.getConditions(locale);
@@ -277,7 +276,7 @@ public class AutomationCommandList extends AutomationCommand {
      * @return a collection of {@link Rule}s that match the filter.
      */
     private Collection<Rule> getRuleByFilter(Map<String, String> list) {
-        Collection<Rule> rules = new ArrayList<Rule>();
+        Collection<Rule> rules = new ArrayList<>();
         if (!list.isEmpty()) {
             Rule r = null;
             String uid = list.get(id);
@@ -313,7 +312,7 @@ public class AutomationCommandList extends AutomationCommand {
      * @return a collection of {@link Template}s that match the filter.
      */
     private Collection<RuleTemplate> getTemplateByFilter(Map<String, String> list) {
-        Collection<RuleTemplate> templates = new ArrayList<RuleTemplate>();
+        Collection<RuleTemplate> templates = new ArrayList<>();
         RuleTemplate t = null;
         String uid = list.get(id);
         if (uid != null) {
@@ -347,7 +346,7 @@ public class AutomationCommandList extends AutomationCommand {
      * @return a collection of {@link ModuleType}s that match the filter.
      */
     private Collection<ModuleType> getModuleTypeByFilter(Map<String, String> list) {
-        Collection<ModuleType> moduleTypes = new ArrayList<ModuleType>();
+        Collection<ModuleType> moduleTypes = new ArrayList<>();
         if (!list.isEmpty()) {
             ModuleType mt = null;
             String uid = list.get(id);
@@ -401,5 +400,4 @@ public class AutomationCommandList extends AutomationCommand {
             }
         }
     }
-
 }

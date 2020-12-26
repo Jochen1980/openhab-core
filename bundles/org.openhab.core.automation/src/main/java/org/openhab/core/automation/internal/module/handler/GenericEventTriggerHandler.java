@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -12,21 +12,18 @@
  */
 package org.openhab.core.automation.internal.module.handler;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.smarthome.core.events.Event;
-import org.eclipse.smarthome.core.events.EventFilter;
-import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.openhab.core.automation.Trigger;
 import org.openhab.core.automation.handler.BaseTriggerModuleHandler;
 import org.openhab.core.automation.handler.TriggerHandlerCallback;
+import org.openhab.core.events.Event;
+import org.openhab.core.events.EventFilter;
+import org.openhab.core.events.EventSubscriber;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
@@ -41,11 +38,16 @@ import org.slf4j.LoggerFactory;
  * EventSubscriber, so the dispose method must be called for unregistering the
  * service.
  *
- * @author Benedikt Niehues - Initial contribution and API
+ * @author Benedikt Niehues - Initial contribution
  * @author Kai Kreuzer - refactored and simplified customized module handling
- *
  */
 public class GenericEventTriggerHandler extends BaseTriggerModuleHandler implements EventSubscriber, EventFilter {
+
+    public static final String MODULE_TYPE_ID = "core.GenericEventTrigger";
+
+    private static final String CFG_EVENT_TOPIC = "eventTopic";
+    private static final String CFG_EVENT_SOURCE = "eventSource";
+    private static final String CFG_EVENT_TYPES = "eventTypes";
 
     private final Logger logger = LoggerFactory.getLogger(GenericEventTriggerHandler.class);
 
@@ -54,27 +56,19 @@ public class GenericEventTriggerHandler extends BaseTriggerModuleHandler impleme
     private final Set<String> types;
     private final BundleContext bundleContext;
 
-    public static final String MODULE_TYPE_ID = "core.GenericEventTrigger";
-
-    private static final String CFG_EVENT_TOPIC = "eventTopic";
-    private static final String CFG_EVENT_SOURCE = "eventSource";
-    private static final String CFG_EVENT_TYPES = "eventTypes";
-
-    @SuppressWarnings("rawtypes")
-    private ServiceRegistration eventSubscriberRegistration;
+    private ServiceRegistration<?> eventSubscriberRegistration;
 
     public GenericEventTriggerHandler(Trigger module, BundleContext bundleContext) {
         super(module);
         this.source = (String) module.getConfiguration().get(CFG_EVENT_SOURCE);
         this.topic = (String) module.getConfiguration().get(CFG_EVENT_TOPIC);
         if (module.getConfiguration().get(CFG_EVENT_TYPES) != null) {
-            this.types = Collections.unmodifiableSet(
-                    new HashSet<>(Arrays.asList(((String) module.getConfiguration().get(CFG_EVENT_TYPES)).split(","))));
+            this.types = Set.of(((String) module.getConfiguration().get(CFG_EVENT_TYPES)).split(","));
         } else {
-            this.types = Collections.emptySet();
+            this.types = Set.of();
         }
         this.bundleContext = bundleContext;
-        Dictionary<String, Object> properties = new Hashtable<String, Object>();
+        Dictionary<String, Object> properties = new Hashtable<>();
         properties.put("event.topics", topic);
         eventSubscriberRegistration = this.bundleContext.registerService(EventSubscriber.class.getName(), this,
                 properties);
@@ -138,5 +132,4 @@ public class GenericEventTriggerHandler extends BaseTriggerModuleHandler impleme
         logger.trace("->FILTER: {}:{}", event.getTopic(), source);
         return event.getTopic().contains(source);
     }
-
 }

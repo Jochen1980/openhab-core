@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -20,8 +20,6 @@ import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
-import org.eclipse.smarthome.config.core.Configuration;
 import org.openhab.core.automation.Action;
 import org.openhab.core.automation.Condition;
 import org.openhab.core.automation.Module;
@@ -33,39 +31,29 @@ import org.openhab.core.automation.RuleStatusInfo;
 import org.openhab.core.automation.Trigger;
 import org.openhab.core.automation.Visibility;
 import org.openhab.core.automation.template.RuleTemplate;
+import org.openhab.core.config.core.ConfigDescriptionParameter;
+import org.openhab.core.config.core.Configuration;
 
 /**
  * convenience Rule class with an action handler. This allows to define Rules which have a execution block.
  *
  * @author Simon Merschjohann - Initial contribution
  * @author Kai Kreuzer - made it implement Rule
- *
  */
 @NonNullByDefault
 public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
 
-    @NonNullByDefault({})
-    protected List<Trigger> triggers;
-    @NonNullByDefault({})
-    protected List<Condition> conditions;
-    @NonNullByDefault({})
-    protected List<Action> actions;
-    @NonNullByDefault({})
-    protected Configuration configuration;
-    @NonNullByDefault({})
-    protected List<ConfigDescriptionParameter> configDescriptions;
-    @Nullable
-    protected String templateUID;
-    @NonNullByDefault({})
-    protected String uid;
-    @Nullable
-    protected String name;
-    @NonNullByDefault({})
-    protected Set<String> tags;
-    @NonNullByDefault({})
-    protected Visibility visibility;
-    @Nullable
-    protected String description;
+    protected @NonNullByDefault({}) List<Trigger> triggers;
+    protected @NonNullByDefault({}) List<Condition> conditions;
+    protected @NonNullByDefault({}) List<Action> actions;
+    protected @NonNullByDefault({}) Configuration configuration;
+    protected @NonNullByDefault({}) List<ConfigDescriptionParameter> configDescriptions;
+    protected @Nullable String templateUID;
+    protected @NonNullByDefault({}) String uid;
+    protected @Nullable String name;
+    protected @NonNullByDefault({}) Set<String> tags;
+    protected @NonNullByDefault({}) Visibility visibility;
+    protected @Nullable String description;
 
     protected transient volatile RuleStatusInfo status = new RuleStatusInfo(RuleStatus.UNINITIALIZED,
             RuleStatusDetail.NONE);
@@ -79,8 +67,7 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
     }
 
     @Override
-    @Nullable
-    public String getTemplateUID() {
+    public @Nullable String getTemplateUID() {
         return templateUID;
     }
 
@@ -94,8 +81,7 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
     }
 
     @Override
-    @Nullable
-    public String getName() {
+    public @Nullable String getName() {
         return name;
     }
 
@@ -123,8 +109,7 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
     }
 
     @Override
-    @Nullable
-    public String getDescription() {
+    public @Nullable String getDescription() {
         return description;
     }
 
@@ -223,13 +208,11 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
 
     @Override
     public List<Module> getModules() {
-        final List<Module> result;
-        List<Module> modules = new ArrayList<Module>();
+        List<Module> modules = new ArrayList<>();
         modules.addAll(triggers);
         modules.addAll(conditions);
         modules.addAll(actions);
-        result = Collections.unmodifiableList(modules);
-        return result;
+        return Collections.unmodifiableList(modules);
     }
 
     @SuppressWarnings("unchecked")
@@ -274,5 +257,4 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
         }
         return true;
     }
-
 }

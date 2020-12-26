@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -12,14 +12,13 @@
  */
 package org.openhab.core.automation.dto;
 
-import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTOMapper;
-import org.openhab.core.automation.dto.ModuleTypeDTO;
 import org.openhab.core.automation.type.ModuleType;
+import org.openhab.core.config.core.dto.ConfigDescriptionDTOMapper;
 
 /**
  * This is a utility class to convert between the respective object and its DTO.
  *
- * @author Markus Rathgeb - Initial contribution and API
+ * @author Markus Rathgeb - Initial contribution
  */
 public class ModuleTypeDTOMapper {
 

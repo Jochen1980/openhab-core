@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -17,16 +17,16 @@ import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.config.core.Configuration;
 import org.openhab.core.automation.Condition;
 import org.openhab.core.automation.Module;
 import org.openhab.core.automation.type.Input;
 import org.openhab.core.automation.type.Output;
+import org.openhab.core.config.core.Configuration;
 
 /**
  * This class is implementation of {@link Condition} modules used in the {@link RuleEngineImpl}s.
  *
- * @author Yordan Mihaylov - Initial Contribution
+ * @author Yordan Mihaylov - Initial contribution
  */
 @NonNullByDefault
 public class ConditionImpl extends ModuleImpl implements Condition {
@@ -60,5 +60,4 @@ public class ConditionImpl extends ModuleImpl implements Condition {
     public Map<String, String> getInputs() {
         return inputs;
     }
-
 }

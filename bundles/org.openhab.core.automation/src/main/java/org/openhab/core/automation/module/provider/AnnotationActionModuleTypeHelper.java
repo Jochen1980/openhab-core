@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -26,9 +26,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.automation.Action;
+import org.openhab.core.automation.AnnotatedActions;
+import org.openhab.core.automation.Visibility;
 import org.openhab.core.automation.annotation.ActionInput;
 import org.openhab.core.automation.annotation.ActionOutput;
 import org.openhab.core.automation.annotation.ActionOutputs;
@@ -36,19 +38,22 @@ import org.openhab.core.automation.annotation.ActionScope;
 import org.openhab.core.automation.annotation.RuleAction;
 import org.openhab.core.automation.type.ActionType;
 import org.openhab.core.automation.type.Input;
+import org.openhab.core.automation.type.ModuleTypeProvider;
 import org.openhab.core.automation.type.Output;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
-import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.config.core.ParameterOption;
+import org.openhab.core.config.core.ConfigDescriptionParameter;
+import org.openhab.core.config.core.ConfigDescriptionParameter.Type;
+import org.openhab.core.config.core.ConfigDescriptionParameterBuilder;
+import org.openhab.core.config.core.Configuration;
+import org.openhab.core.config.core.ParameterOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Helper methods for annotated ActionModuleType provider
+ * Helper methods for {@link AnnotatedActions} {@link ModuleTypeProvider}
  *
- * @author Stefan Triller - initial contribution
- *
+ * @author Stefan Triller - Initial contribution
  */
+@NonNullByDefault
 public class AnnotationActionModuleTypeHelper {
 
     private final Logger logger = LoggerFactory.getLogger(AnnotationActionModuleTypeHelper.class);
@@ -57,20 +62,18 @@ public class AnnotationActionModuleTypeHelper {
     private static final String SELECT_THING_LABEL = "Select Thing";
     public static final String CONFIG_PARAM = "config";
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     public Collection<ModuleInformation> parseAnnotations(Object actionProvider) {
-        Class clazz = actionProvider.getClass();
+        Class<?> clazz = actionProvider.getClass();
         if (clazz.isAnnotationPresent(ActionScope.class)) {
-            ActionScope scope = (ActionScope) clazz.getAnnotation(ActionScope.class);
+            ActionScope scope = clazz.getAnnotation(ActionScope.class);
             return parseAnnotations(scope.name(), actionProvider);
         }
         return Collections.emptyList();
     }
 
-    @SuppressWarnings({ "rawtypes" })
     public Collection<ModuleInformation> parseAnnotations(String name, Object actionProvider) {
         Collection<ModuleInformation> moduleInformation = new ArrayList<>();
-        Class clazz = actionProvider.getClass();
+        Class<?> clazz = actionProvider.getClass();
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
             if (method.isAnnotationPresent(RuleAction.class)) {
@@ -84,7 +87,10 @@ public class AnnotationActionModuleTypeHelper {
                 ModuleInformation mi = new ModuleInformation(uid, actionProvider, method);
                 mi.setLabel(ruleAction.label());
                 mi.setDescription(ruleAction.description());
-                mi.setVisibility(ruleAction.visibility());
+                // We temporarily want to hide all ThingActions in UIs as we do not have a proper solution to enter
+                // their input values (see https://github.com/openhab/openhab-core/issues/1745)
+                // mi.setVisibility(ruleAction.visibility());
+                mi.setVisibility(Visibility.HIDDEN);
                 mi.setInputs(inputs);
                 mi.setOutputs(outputs);
                 mi.setTags(tags);
@@ -104,11 +110,10 @@ public class AnnotationActionModuleTypeHelper {
         for (int i = 0; i < annotations.length; i++) {
             Parameter param = params[i];
             Annotation[] paramAnnotations = annotations[i];
-            Input input = null;
             if (paramAnnotations.length == 0) {
                 // we do not have an annotation with a name for this parameter
-                input = new Input("p" + i, param.getType().getCanonicalName(), "", "", Collections.<String> emptySet(),
-                        false, "", "");
+                inputs.add(new Input("p" + i, param.getType().getCanonicalName(), "", "", Collections.emptySet(), false,
+                        "", ""));
             } else if (paramAnnotations.length == 1) {
                 Annotation a = paramAnnotations[0];
                 if (a instanceof ActionInput) {
@@ -122,12 +127,11 @@ public class AnnotationActionModuleTypeHelper {
                         type = param.getType().getCanonicalName();
                     }
 
-                    input = new Input(inp.name(), type, inp.label(), inp.description(),
+                    inputs.add(new Input(inp.name(), type, inp.label(), inp.description(),
                             Arrays.stream(inp.tags()).collect(Collectors.toSet()), inp.required(), inp.reference(),
-                            inp.defaultValue());
+                            inp.defaultValue()));
                 }
             }
-            inputs.add(input);
         }
         return inputs;
     }
@@ -147,11 +151,11 @@ public class AnnotationActionModuleTypeHelper {
         return outputs;
     }
 
-    public ActionType buildModuleType(String UID, Map<String, Set<ModuleInformation>> moduleInformation) {
+    public @Nullable ActionType buildModuleType(String UID, Map<String, Set<ModuleInformation>> moduleInformation) {
         Set<ModuleInformation> mis = moduleInformation.get(UID);
         List<ConfigDescriptionParameter> configDescriptions = new ArrayList<>();
 
-        if (mis != null && mis.size() > 0) {
+        if (mis != null && !mis.isEmpty()) {
             ModuleInformation mi = (ModuleInformation) mis.toArray()[0];
 
             ActionModuleKind kind = ActionModuleKind.SINGLE;
@@ -178,7 +182,7 @@ public class AnnotationActionModuleTypeHelper {
         return null;
     }
 
-    private ConfigDescriptionParameter buildConfigParam(Set<ModuleInformation> moduleInformations,
+    private @Nullable ConfigDescriptionParameter buildConfigParam(Set<ModuleInformation> moduleInformations,
             ActionModuleKind kind) {
         List<ParameterOption> options = new ArrayList<>();
         if (kind == ActionModuleKind.SINGLE) {
@@ -207,8 +211,8 @@ public class AnnotationActionModuleTypeHelper {
         return null;
     }
 
-    public ModuleInformation getModuleInformationForIdentifier(Action module,
-            Map<String, Set<ModuleInformation>> moduleInformation, boolean thing) {
+    public @Nullable ModuleInformation getModuleInformationForIdentifier(Action module,
+            Map<String, Set<ModuleInformation>> moduleInformation, boolean isThing) {
         Configuration c = module.getConfiguration();
         String config = (String) c.get(AnnotationActionModuleTypeHelper.CONFIG_PARAM);
 
@@ -218,9 +222,8 @@ public class AnnotationActionModuleTypeHelper {
         if (mis.size() == 1 && config == null) {
             finalMI = (ModuleInformation) mis.toArray()[0];
         } else {
-
             for (ModuleInformation mi : mis) {
-                if (thing) {
+                if (isThing) {
                     if (Objects.equals(mi.getThingUID(), config)) {
                         finalMI = mi;
                         break;
@@ -235,5 +238,4 @@ public class AnnotationActionModuleTypeHelper {
         }
         return finalMI;
     }
-
 }

@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -19,13 +19,13 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.smarthome.core.events.Event;
-import org.eclipse.smarthome.core.events.EventFilter;
-import org.eclipse.smarthome.core.events.EventSubscriber;
-import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent;
 import org.openhab.core.automation.Trigger;
 import org.openhab.core.automation.handler.BaseTriggerModuleHandler;
 import org.openhab.core.automation.handler.TriggerHandlerCallback;
+import org.openhab.core.events.Event;
+import org.openhab.core.events.EventFilter;
+import org.openhab.core.events.EventSubscriber;
+import org.openhab.core.thing.events.ChannelTriggeredEvent;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
@@ -35,22 +35,21 @@ import org.slf4j.LoggerFactory;
  * This is an ModuleHandler implementation for trigger channels with specific events
  *
  * @author Stefan Triller - Initial contribution
- *
  */
 public class ChannelEventTriggerHandler extends BaseTriggerModuleHandler implements EventSubscriber, EventFilter {
 
-    private final Logger logger = LoggerFactory.getLogger(ChannelEventTriggerHandler.class);
-
     public static final String MODULE_TYPE_ID = "core.ChannelEventTrigger";
+
+    public static final String CFG_CHANNEL_EVENT = "event";
+    public static final String CFG_CHANNEL = "channelUID";
+    public static final String TOPIC = "openhab/channels/*/triggered";
+
+    private final Logger logger = LoggerFactory.getLogger(ChannelEventTriggerHandler.class);
 
     private final String eventOnChannel;
     private final String channelUID;
-    private final String TOPIC = "smarthome/channels/*/triggered";
-    private final Set<String> types = new HashSet<String>();
+    private final Set<String> types = new HashSet<>();
     private final BundleContext bundleContext;
-
-    private final String CFG_CHANNEL_EVENT = "event";
-    private final String CFG_CHANNEL = "channelUID";
 
     @SuppressWarnings("rawtypes")
     private ServiceRegistration eventSubscriberRegistration;
@@ -63,7 +62,7 @@ public class ChannelEventTriggerHandler extends BaseTriggerModuleHandler impleme
         this.bundleContext = bundleContext;
         this.types.add("ChannelTriggeredEvent");
 
-        Dictionary<String, Object> properties = new Hashtable<String, Object>();
+        Dictionary<String, Object> properties = new Hashtable<>();
         properties.put("event.topics", TOPIC);
         eventSubscriberRegistration = this.bundleContext.registerService(EventSubscriber.class.getName(), this,
                 properties);
@@ -121,5 +120,4 @@ public class ChannelEventTriggerHandler extends BaseTriggerModuleHandler impleme
             eventSubscriberRegistration = null;
         }
     }
-
 }

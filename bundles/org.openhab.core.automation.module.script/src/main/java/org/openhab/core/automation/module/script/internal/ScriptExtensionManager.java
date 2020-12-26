@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -13,6 +13,7 @@
 package org.openhab.core.automation.module.script.internal;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,7 +21,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.script.ScriptEngine;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.automation.module.script.ScriptEngineFactory;
+import org.openhab.core.automation.module.script.ScriptExtensionAccessor;
 import org.openhab.core.automation.module.script.ScriptExtensionProvider;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -30,12 +34,13 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 /**
  * This manager allows a script import extension providers
  *
- * @author Simon Merschjohann
- *
+ * @author Simon Merschjohann - Initial contribution
  */
 @Component(service = ScriptExtensionManager.class)
-public class ScriptExtensionManager {
-    private Set<ScriptExtensionProvider> scriptExtensionProviders = new CopyOnWriteArraySet<ScriptExtensionProvider>();
+@NonNullByDefault
+public class ScriptExtensionManager implements ScriptExtensionAccessor {
+
+    private final Set<ScriptExtensionProvider> scriptExtensionProviders = new CopyOnWriteArraySet<>();
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addScriptExtensionProvider(ScriptExtensionProvider provider) {
@@ -55,7 +60,7 @@ public class ScriptExtensionManager {
     }
 
     public List<String> getTypes() {
-        ArrayList<String> types = new ArrayList<>();
+        List<String> types = new ArrayList<>();
 
         for (ScriptExtensionProvider provider : scriptExtensionProviders) {
             types.addAll(provider.getTypes());
@@ -65,7 +70,7 @@ public class ScriptExtensionManager {
     }
 
     public List<String> getPresets() {
-        ArrayList<String> presets = new ArrayList<>();
+        List<String> presets = new ArrayList<>();
 
         for (ScriptExtensionProvider provider : scriptExtensionProviders) {
             presets.addAll(provider.getPresets());
@@ -74,7 +79,7 @@ public class ScriptExtensionManager {
         return presets;
     }
 
-    public Object get(String type, String scriptIdentifier) {
+    public @Nullable Object get(String type, String scriptIdentifier) {
         for (ScriptExtensionProvider provider : scriptExtensionProviders) {
             if (provider.getTypes().contains(type)) {
                 return provider.get(scriptIdentifier, type);
@@ -85,7 +90,7 @@ public class ScriptExtensionManager {
     }
 
     public List<String> getDefaultPresets() {
-        ArrayList<String> defaultPresets = new ArrayList<>();
+        List<String> defaultPresets = new ArrayList<>();
 
         for (ScriptExtensionProvider provider : scriptExtensionProviders) {
             defaultPresets.addAll(provider.getDefaultPresets());
@@ -96,20 +101,40 @@ public class ScriptExtensionManager {
 
     public void importDefaultPresets(ScriptEngineFactory engineProvider, ScriptEngine scriptEngine,
             String scriptIdentifier) {
-        for (String preset : getDefaultPresets()) {
-            importPreset(preset, engineProvider, scriptEngine, scriptIdentifier);
-        }
+
+        engineProvider.scopeValues(scriptEngine, findDefaultPresets(scriptIdentifier));
     }
 
-    public void importPreset(String preset, ScriptEngineFactory engineProvider, ScriptEngine scriptEngine,
-            String scriptIdentifier) {
+    public Map<String, Object> importPreset(String preset, ScriptEngineFactory engineProvider,
+            ScriptEngine scriptEngine, String scriptIdentifier) {
+
+        Map<String, Object> rv = findPreset(preset, scriptIdentifier);
+
+        engineProvider.scopeValues(scriptEngine, rv);
+
+        return rv;
+    }
+
+    public Map<String, Object> findDefaultPresets(String scriptIdentifier) {
+        Map<String, Object> allValues = new HashMap<>();
+
+        for (String preset : getDefaultPresets()) {
+            allValues.putAll(findPreset(preset, scriptIdentifier));
+        }
+
+        return allValues;
+    }
+
+    public Map<String, Object> findPreset(String preset, String scriptIdentifier) {
+        Map<String, Object> allValues = new HashMap<>();
         for (ScriptExtensionProvider provider : scriptExtensionProviders) {
             if (provider.getPresets().contains(preset)) {
                 Map<String, Object> scopeValues = provider.importPreset(scriptIdentifier, preset);
 
-                engineProvider.scopeValues(scriptEngine, scopeValues);
+                allValues.putAll(scopeValues);
             }
         }
+        return allValues;
     }
 
     public void dispose(String scriptIdentifier) {
@@ -117,5 +142,4 @@ public class ScriptExtensionManager {
             provider.unload(scriptIdentifier);
         }
     }
-
 }

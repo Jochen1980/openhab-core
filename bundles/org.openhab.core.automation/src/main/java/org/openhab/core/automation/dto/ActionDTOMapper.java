@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -16,15 +16,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.smarthome.config.core.Configuration;
 import org.openhab.core.automation.Action;
-import org.openhab.core.automation.dto.ActionDTO;
 import org.openhab.core.automation.util.ModuleBuilder;
+import org.openhab.core.config.core.Configuration;
 
 /**
  * This is a utility class to convert between the respective object and its DTO.
  *
- * @author Markus Rathgeb - Initial contribution and API
+ * @author Markus Rathgeb - Initial contribution
  * @author Kai Kreuzer - Changed to using ModuleBuilder
  */
 public class ActionDTOMapper extends ModuleDTOMapper {
@@ -46,7 +45,7 @@ public class ActionDTOMapper extends ModuleDTOMapper {
         if (actions == null) {
             return null;
         }
-        final List<ActionDTO> dtos = new ArrayList<ActionDTO>(actions.size());
+        final List<ActionDTO> dtos = new ArrayList<>(actions.size());
         for (final Action action : actions) {
             dtos.add(map(action));
         }
@@ -57,11 +56,10 @@ public class ActionDTOMapper extends ModuleDTOMapper {
         if (dtos == null) {
             return null;
         }
-        final List<Action> actions = new ArrayList<Action>(dtos.size());
+        final List<Action> actions = new ArrayList<>(dtos.size());
         for (final ActionDTO dto : dtos) {
             actions.add(mapDto(dto));
         }
         return actions;
     }
-
 }

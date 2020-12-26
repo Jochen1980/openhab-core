@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -16,22 +16,18 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
-import org.eclipse.smarthome.config.core.Configuration;
 import org.openhab.core.automation.Condition;
-import org.openhab.core.automation.handler.BaseModuleHandler;
-import org.openhab.core.automation.handler.ConditionHandler;
+import org.openhab.core.automation.handler.BaseConditionModuleHandler;
+import org.openhab.core.config.core.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * ConditionHandler implementation for time based conditions.
  *
- * @author Dominik Schlierf - initial contribution
- *
+ * @author Dominik Schlierf - Initial contribution
  */
-public class TimeOfDayConditionHandler extends BaseModuleHandler<Condition> implements ConditionHandler {
-
-    private final Logger logger = LoggerFactory.getLogger(TimeOfDayConditionHandler.class);
+public class TimeOfDayConditionHandler extends BaseConditionModuleHandler {
 
     public static final String MODULE_TYPE_ID = "core.TimeOfDayCondition";
 
@@ -41,6 +37,8 @@ public class TimeOfDayConditionHandler extends BaseModuleHandler<Condition> impl
      */
     private static final String START_TIME = "startTime";
     private static final String END_TIME = "endTime";
+    private final Logger logger = LoggerFactory.getLogger(TimeOfDayConditionHandler.class);
+
     /**
      * The start time of the user configured time span.
      */
@@ -61,7 +59,6 @@ public class TimeOfDayConditionHandler extends BaseModuleHandler<Condition> impl
 
     @Override
     public boolean isSatisfied(Map<String, Object> inputs) {
-
         if (startTime == null || endTime == null) {
             logger.warn("Time condition with id {} is not well configured: startTime={}  endTime = {}", module.getId(),
                     startTime, endTime);
@@ -98,5 +95,4 @@ public class TimeOfDayConditionHandler extends BaseModuleHandler<Condition> impl
         // If none of these conditions apply false is returned.
         return false;
     }
-
 }

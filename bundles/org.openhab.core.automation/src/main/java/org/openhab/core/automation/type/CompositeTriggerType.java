@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -18,17 +18,17 @@ import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.openhab.core.automation.Trigger;
 import org.openhab.core.automation.Visibility;
+import org.openhab.core.config.core.ConfigDescriptionParameter;
 
 /**
  * This class is as {@link TriggerType} which logically combines {@link Trigger} modules. The composite trigger hides
  * internal logic between participating {@link Trigger}s and it can be used as a regular {@link Trigger} module.
  *
- * @author Yordan Mihaylov - Initial Contribution
- * @author Ana Dimova - Initial Contribution
- * @author Vasil Ilchev - Initial Contribution
+ * @author Yordan Mihaylov - Initial contribution
+ * @author Ana Dimova - Initial contribution
+ * @author Vasil Ilchev - Initial contribution
  */
 @NonNullByDefault
 public class CompositeTriggerType extends TriggerType {
@@ -39,12 +39,12 @@ public class CompositeTriggerType extends TriggerType {
      * Creates an instance of {@code CompositeTriggerType} with ordered set of {@link Trigger} modules. It initializes
      * only base properties of the {@code CompositeTriggerType}.
      *
-     * @param UID                the {@link TriggerType}'s identifier, or {@code null} if a random identifier should be
-     *                           generated.
+     * @param UID the {@link TriggerType}'s identifier, or {@code null} if a random identifier should be
+     *            generated.
      * @param configDescriptions describing meta-data for the configuration of the future {@link Trigger} instances.
-     * @param outputs            a {@link List} with {@link Output} meta-information descriptions of the future
-     *                           {@link Trigger} instances.
-     * @param children           is a {@link List} of {@link Trigger} modules.
+     * @param outputs a {@link List} with {@link Output} meta-information descriptions of the future
+     *            {@link Trigger} instances.
+     * @param children is a {@link List} of {@link Trigger} modules.
      *
      */
     public CompositeTriggerType(@Nullable String UID, @Nullable List<ConfigDescriptionParameter> configDescriptions,
@@ -57,19 +57,19 @@ public class CompositeTriggerType extends TriggerType {
      * Creates an instance of {@code CompositeTriggerType} with ordered set of {@link Trigger} modules. It initializes
      * all properties of the {@code CompositeTriggerType}.
      *
-     * @param UID                the {@link TriggerType}'s identifier, or {@code null} if a random identifier should be
-     *                           generated.
+     * @param UID the {@link TriggerType}'s identifier, or {@code null} if a random identifier should be
+     *            generated.
      * @param configDescriptions describing meta-data for the configuration of the future {@link Trigger} instances.
-     * @param label              a short and accurate, human-readable label of the {@link TriggerType}.
-     * @param description        a detailed, human-readable description of usage of {@link TriggerType} and its
-     *                           benefits.
-     * @param tags               defines categories that fit the {@link TriggerType} and which can serve as criteria for
-     *                           searching or filtering it.
-     * @param visibility         determines whether the {@link TriggerType} can be used by anyone if it is
-     *                           {@link Visibility#VISIBLE} or only by its creator if it is {@link Visibility#HIDDEN}.
-     * @param outputs            a {@link List} with {@link Output} meta-information descriptions of the future
-     *                           {@link Trigger} instances.
-     * @param children           is a {@link List} of {@link Trigger} modules.
+     * @param label a short and accurate, human-readable label of the {@link TriggerType}.
+     * @param description a detailed, human-readable description of usage of {@link TriggerType} and its
+     *            benefits.
+     * @param tags defines categories that fit the {@link TriggerType} and which can serve as criteria for
+     *            searching or filtering it.
+     * @param visibility determines whether the {@link TriggerType} can be used by anyone if it is
+     *            {@link Visibility#VISIBLE} or only by its creator if it is {@link Visibility#HIDDEN}.
+     * @param outputs a {@link List} with {@link Output} meta-information descriptions of the future
+     *            {@link Trigger} instances.
+     * @param children is a {@link List} of {@link Trigger} modules.
      */
     public CompositeTriggerType(@Nullable String UID, @Nullable List<ConfigDescriptionParameter> configDescriptions,
             @Nullable String label, @Nullable String description, @Nullable Set<String> tags,
@@ -86,5 +86,4 @@ public class CompositeTriggerType extends TriggerType {
     public List<Trigger> getChildren() {
         return children;
     }
-
 }

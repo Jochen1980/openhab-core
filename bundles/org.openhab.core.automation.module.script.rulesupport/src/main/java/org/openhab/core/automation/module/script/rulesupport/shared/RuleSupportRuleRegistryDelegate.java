@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -14,24 +14,27 @@ package org.openhab.core.automation.module.script.rulesupport.shared;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Stream;
 
-import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.automation.Rule;
 import org.openhab.core.automation.RuleRegistry;
+import org.openhab.core.common.registry.RegistryChangeListener;
 
 /**
  * The {@link RuleSupportRuleRegistryDelegate} is wrapping a {@link RuleRegistry} to provide a comfortable way to add
  * rules to the RuleManager without worrying about the need to remove rules again. Nonetheless, using the addPermanent
  * method it is still possible to add rules permanently.
  *
- * @author Simon Merschjohann
- *
+ * @author Simon Merschjohann - Initial contribution
  */
+@NonNullByDefault
 public class RuleSupportRuleRegistryDelegate implements RuleRegistry {
     private final RuleRegistry ruleRegistry;
 
-    private final HashSet<String> rules = new HashSet<>();
+    private final Set<String> rules = new HashSet<>();
 
     private final ScriptedRuleProvider ruleProvider;
 
@@ -56,7 +59,7 @@ public class RuleSupportRuleRegistryDelegate implements RuleRegistry {
     }
 
     @Override
-    public Rule get(String key) {
+    public @Nullable Rule get(String key) {
         return ruleRegistry.get(key);
     }
 
@@ -83,12 +86,12 @@ public class RuleSupportRuleRegistryDelegate implements RuleRegistry {
     }
 
     @Override
-    public Rule update(Rule element) {
+    public @Nullable Rule update(Rule element) {
         return ruleRegistry.update(element);
     }
 
     @Override
-    public Rule remove(String key) {
+    public @Nullable Rule remove(String key) {
         if (rules.remove(key)) {
             ruleProvider.removeRule(key);
         }
@@ -97,7 +100,7 @@ public class RuleSupportRuleRegistryDelegate implements RuleRegistry {
     }
 
     @Override
-    public Collection<Rule> getByTag(String tag) {
+    public Collection<Rule> getByTag(@Nullable String tag) {
         return ruleRegistry.getByTag(tag);
     }
 
@@ -119,5 +122,4 @@ public class RuleSupportRuleRegistryDelegate implements RuleRegistry {
     public Collection<Rule> getByTags(String... tags) {
         return ruleRegistry.getByTags(tags);
     }
-
 }

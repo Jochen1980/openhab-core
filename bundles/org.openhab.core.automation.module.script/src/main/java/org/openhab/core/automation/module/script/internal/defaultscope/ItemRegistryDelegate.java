@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -12,22 +12,21 @@
  */
 package org.openhab.core.automation.module.script.internal.defaultscope;
 
-import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.items.ItemNotFoundException;
-import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.eclipse.smarthome.core.types.State;
+import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.core.items.Item;
+import org.openhab.core.items.ItemNotFoundException;
+import org.openhab.core.items.ItemRegistry;
+import org.openhab.core.types.State;
 
 /**
  * This is a helper class that can be added to script scopes. It provides easy access to the current item states.
  *
  * @author Kai Kreuzer - Initial contribution
- *
  */
 public class ItemRegistryDelegate implements Map<String, State> {
 
@@ -44,7 +43,7 @@ public class ItemRegistryDelegate implements Map<String, State> {
 
     @Override
     public boolean isEmpty() {
-        return size() == 0;
+        return itemRegistry.getAll().isEmpty();
     }
 
     @Override
@@ -66,7 +65,10 @@ public class ItemRegistryDelegate implements Map<String, State> {
     }
 
     @Override
-    public State get(Object key) {
+    public State get(@Nullable Object key) {
+        if (key == null) {
+            return null;
+        }
         final Item item = itemRegistry.get((String) key);
         if (item == null) {
             return null;
@@ -114,11 +116,10 @@ public class ItemRegistryDelegate implements Map<String, State> {
 
     @Override
     public Set<java.util.Map.Entry<String, State>> entrySet() {
-        Set<Map.Entry<String, State>> entries = new HashSet<Map.Entry<String, State>>();
+        Set<Map.Entry<String, State>> entries = new HashSet<>();
         for (Item item : itemRegistry.getAll()) {
-            entries.add(new AbstractMap.SimpleEntry<>(item.getName(), item.getState()));
+            entries.add(Map.entry(item.getName(), item.getState()));
         }
         return entries;
     }
-
 }

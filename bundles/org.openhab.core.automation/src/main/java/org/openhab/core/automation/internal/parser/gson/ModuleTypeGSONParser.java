@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -40,8 +40,7 @@ import org.osgi.service.component.annotations.Component;
 /**
  * This class can parse and serialize sets of {@link ModuleType}.
  *
- * @author Kai Kreuzer - Initial Contribution
- *
+ * @author Kai Kreuzer - Initial contribution
  */
 @Component(immediate = true, service = Parser.class, property = { "parser.type=parser.module.type", "format=json" })
 public class ModuleTypeGSONParser extends AbstractGSONParser<ModuleType> {
@@ -84,11 +83,11 @@ public class ModuleTypeGSONParser extends AbstractGSONParser<ModuleType> {
     }
 
     private Map<String, List<? extends ModuleType>> createMapByType(Set<ModuleType> dataObjects) {
-        Map<String, List<? extends ModuleType>> map = new HashMap<String, List<? extends ModuleType>>();
+        Map<String, List<? extends ModuleType>> map = new HashMap<>();
 
-        List<TriggerType> triggers = new ArrayList<TriggerType>();
-        List<ConditionType> conditions = new ArrayList<ConditionType>();
-        List<ActionType> actions = new ArrayList<ActionType>();
+        List<TriggerType> triggers = new ArrayList<>();
+        List<ConditionType> conditions = new ArrayList<>();
+        List<ActionType> actions = new ArrayList<>();
         for (ModuleType moduleType : dataObjects) {
             if (moduleType instanceof TriggerType) {
                 triggers.add((TriggerType) moduleType);
@@ -103,5 +102,4 @@ public class ModuleTypeGSONParser extends AbstractGSONParser<ModuleType> {
         map.put("actions", actions);
         return map;
     }
-
 }

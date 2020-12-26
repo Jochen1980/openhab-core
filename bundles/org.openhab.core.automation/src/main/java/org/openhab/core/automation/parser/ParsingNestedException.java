@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -16,7 +16,7 @@ package org.openhab.core.automation.parser;
  * This class extends the {@link Exception} class functionality with keeping additional information about reasons for
  * exception during the parsing process.
  *
- * @author Ana Dimova - Initial Contribution
+ * @author Ana Dimova - Initial contribution
  */
 @SuppressWarnings("serial")
 public class ParsingNestedException extends Exception {
@@ -40,9 +40,9 @@ public class ParsingNestedException extends Exception {
      * object, its UID and additional message with additional information about the parsing process.
      *
      * @param type is the type of the automation object for parsing.
-     * @param id   is the UID of the automation object for parsing.
-     * @param msg  is the additional message with additional information about the parsing process.
-     * @param t    is the exception thrown during the parsing.
+     * @param id is the UID of the automation object for parsing.
+     * @param msg is the additional message with additional information about the parsing process.
+     * @param t is the exception thrown during the parsing.
      */
     public ParsingNestedException(int type, String id, String msg, Throwable t) {
         super(msg, t);
@@ -55,8 +55,8 @@ public class ParsingNestedException extends Exception {
      * automation object and its UID.
      *
      * @param type is the type of the automation object for parsing.
-     * @param id   is the UID of the automation object for parsing.
-     * @param t    is the exception thrown during the parsing.
+     * @param id is the UID of the automation object for parsing.
+     * @param t is the exception thrown during the parsing.
      */
     public ParsingNestedException(int type, String id, Throwable t) {
         super(t);

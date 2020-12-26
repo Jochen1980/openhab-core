@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -12,14 +12,15 @@
  */
 package org.openhab.core.automation.internal;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
-import org.eclipse.smarthome.config.core.Configuration;
 import org.openhab.core.automation.Module;
 import org.openhab.core.automation.Rule;
 import org.openhab.core.automation.type.Input;
 import org.openhab.core.automation.type.ModuleType;
 import org.openhab.core.automation.type.Output;
+import org.openhab.core.config.core.ConfigDescriptionParameter;
+import org.openhab.core.config.core.Configuration;
 
 /**
  * Modules are building components of the {@link Rule}s. Each ModuleImpl is
@@ -32,9 +33,9 @@ import org.openhab.core.automation.type.Output;
  * changes, they should be set on the {@link Rule} and the Rule has to be
  * updated by RuleManager
  *
- * @author Yordan Mihaylov - Initial Contribution
- *
+ * @author Yordan Mihaylov - Initial contribution
  */
+@NonNullByDefault
 public abstract class ModuleImpl implements Module {
 
     /**
@@ -48,12 +49,12 @@ public abstract class ModuleImpl implements Module {
      * The label is a short, user friendly name of the {@link ModuleImpl} defined by
      * this descriptor.
      */
-    private String label;
+    private @Nullable String label;
 
     /**
      * The description is a long, user friendly description of the {@link ModuleImpl} defined by this descriptor.
      */
-    private String description;
+    private @Nullable String description;
 
     /**
      * Configuration values of the ModuleImpl.
@@ -65,7 +66,7 @@ public abstract class ModuleImpl implements Module {
     /**
      * Unique type id of this module.
      */
-    private String type;
+    private String typeUID;
 
     /**
      * Constructor of the module.
@@ -79,7 +80,7 @@ public abstract class ModuleImpl implements Module {
     public ModuleImpl(String id, String typeUID, @Nullable Configuration configuration, @Nullable String label,
             @Nullable String description) {
         this.id = id;
-        this.type = typeUID;
+        this.typeUID = typeUID;
         this.configuration = new Configuration(configuration);
         this.label = label;
         this.description = description;
@@ -101,7 +102,7 @@ public abstract class ModuleImpl implements Module {
 
     @Override
     public String getTypeUID() {
-        return type;
+        return typeUID;
     }
 
     /**
@@ -110,11 +111,11 @@ public abstract class ModuleImpl implements Module {
      * @param typeUID of the module.
      */
     public void setTypeUID(String typeUID) {
-        this.type = typeUID;
+        this.typeUID = typeUID;
     }
 
     @Override
-    public String getLabel() {
+    public @Nullable String getLabel() {
         return label;
     }
 
@@ -128,7 +129,7 @@ public abstract class ModuleImpl implements Module {
     }
 
     @Override
-    public String getDescription() {
+    public @Nullable String getDescription() {
         return description;
     }
 

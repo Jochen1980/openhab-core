@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -19,7 +19,7 @@ import java.util.List;
  * This class extends the {@link Exception} class functionality with functionality serving to accumulate the all
  * exceptions during the parsing process.
  *
- * @author Ana Dimova - Initial Contribution
+ * @author Ana Dimova - Initial contribution
  */
 @SuppressWarnings("serial")
 public class ParsingException extends Exception {
@@ -65,12 +65,11 @@ public class ParsingException extends Exception {
         }
         int index = 0;
         StackTraceElement[] st = new StackTraceElement[size];
-        for (int n = 0; n < exceptions.size(); n++) {
-            StackTraceElement[] ste = exceptions.get(n).getStackTrace();
+        for (ParsingNestedException exception : exceptions) {
+            StackTraceElement[] ste = exception.getStackTrace();
             System.arraycopy(ste, 0, st, index, ste.length);
             index += ste.length;
         }
         return st;
     }
-
 }

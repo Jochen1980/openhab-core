@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -21,8 +21,7 @@ import java.util.Map.Entry;
 /**
  * This class contains methods for facilitating sorting and filtering lists stored in {@link Hashtable}s.
  *
- * @author Ana Dimova - Initial Contribution
- *
+ * @author Ana Dimova - Initial contribution
  */
 public class Utils {
 
@@ -41,9 +40,9 @@ public class Utils {
      * @return an indexed UIDs of the automation objects.
      */
     static Map<String, String> putInHastable(String[] strings) {
-        Hashtable<String, String> sorted = new Hashtable<String, String>();
+        Hashtable<String, String> sorted = new Hashtable<>();
         for (int i = 0; i < strings.length; i++) {
-            sorted.put(new Integer(i + 1).toString(), strings[i]);
+            sorted.put(String.valueOf(i + 1), strings[i]);
         }
         return sorted;
     }
@@ -58,7 +57,7 @@ public class Utils {
      * @return filtered list with UIDs of the objects.
      */
     static Map<String, String> filterList(Map<String, ?> listObjects, Map<String, String> listUIDs) {
-        Hashtable<String, String> filtered = new Hashtable<String, String>();
+        Hashtable<String, String> filtered = new Hashtable<>();
         for (final Entry<String, String> entry : listUIDs.entrySet()) {
             final String id = entry.getKey();
             final String uid = entry.getValue();
@@ -134,7 +133,7 @@ public class Utils {
      * @return a string representing the title of the table.
      */
     static List<String> getTableTitle(String titleRow, int width) {
-        List<String> res = new ArrayList<String>();
+        List<String> res = new ArrayList<>();
         res.add(printChars(TABLE_DELIMITER, width));
         res.add(titleRow);
         res.add(printChars(TABLE_DELIMITER, width));
@@ -297,5 +296,4 @@ public class Utils {
         a[y] = a[z];
         a[z] = t;
     }
-
 }

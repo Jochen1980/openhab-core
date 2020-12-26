@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -12,15 +12,14 @@
  */
 package org.openhab.core.automation.events;
 
-import org.eclipse.smarthome.core.events.AbstractEvent;
 import org.openhab.core.automation.dto.RuleDTO;
+import org.openhab.core.events.AbstractEvent;
 
 /**
  * abstract class for rule events
  *
- * @author Benedikt Niehues - initial contribution
+ * @author Benedikt Niehues - Initial contribution
  * @author Markus Rathgeb - Use the DTO for the Rule representation
- *
  */
 public abstract class AbstractRuleRegistryEvent extends AbstractEvent {
 
@@ -29,9 +28,9 @@ public abstract class AbstractRuleRegistryEvent extends AbstractEvent {
     /**
      * Must be called in subclass constructor to create a new rule registry event.
      *
-     * @param topic   the topic of the event
+     * @param topic the topic of the event
      * @param payload the payload of the event
-     * @param source  the source of the event
+     * @param source the source of the event
      * @param ruleDTO the ruleDTO for which this event is created
      */
     public AbstractRuleRegistryEvent(String topic, String payload, String source, RuleDTO rule) {
@@ -45,5 +44,4 @@ public abstract class AbstractRuleRegistryEvent extends AbstractEvent {
     public RuleDTO getRule() {
         return this.rule;
     }
-
 }

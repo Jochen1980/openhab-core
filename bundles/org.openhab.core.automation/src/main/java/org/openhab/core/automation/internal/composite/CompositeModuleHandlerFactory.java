@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.smarthome.config.core.Configuration;
 import org.openhab.core.automation.Action;
 import org.openhab.core.automation.Condition;
 import org.openhab.core.automation.Module;
@@ -38,6 +37,7 @@ import org.openhab.core.automation.type.CompositeTriggerType;
 import org.openhab.core.automation.type.ModuleType;
 import org.openhab.core.automation.type.ModuleTypeRegistry;
 import org.openhab.core.automation.util.ReferenceResolver;
+import org.openhab.core.config.core.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,20 +51,20 @@ import org.slf4j.LoggerFactory;
  * framework, but it will be used by the rule engine to serve composite module types without any action of the user.
  *
  *
- * @author Yordan Mihaylov - Initial Contribution
+ * @author Yordan Mihaylov - Initial contribution
  */
 public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory implements ModuleHandlerFactory {
 
     private final ModuleTypeRegistry mtRegistry;
     private final RuleEngineImpl ruleEngine;
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(CompositeModuleHandlerFactory.class);
 
     /**
      * The constructor of system handler factory for composite module types.
      *
-     * @param context   is a bundle context
+     * @param context is a bundle context
      * @param mtManager is a module type manager
-     * @param re        is a rule engine
+     * @param re is a rule engine
      */
     public CompositeModuleHandlerFactory(ModuleTypeRegistry mtRegistry, RuleEngineImpl re) {
         this.mtRegistry = mtRegistry;
@@ -93,12 +93,16 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
         if (handlerOfModule instanceof AbstractCompositeModuleHandler) {
             AbstractCompositeModuleHandler<ModuleImpl, ?, ?> h = (AbstractCompositeModuleHandler<ModuleImpl, ?, ?>) handlerOfModule;
             Set<ModuleImpl> modules = h.moduleHandlerMap.keySet();
-            if (modules != null) {
-                for (ModuleImpl child : modules) {
-                    ModuleHandler childHandler = h.moduleHandlerMap.get(child);
-                    ModuleHandlerFactory mhf = ruleEngine.getModuleHandlerFactory(child.getTypeUID());
-                    mhf.ungetHandler(child, childModulePrefix + ":" + module.getId(), childHandler);
+            for (ModuleImpl child : modules) {
+                ModuleHandler childHandler = h.moduleHandlerMap.get(child);
+                if (childHandler == null) {
+                    continue;
                 }
+                ModuleHandlerFactory mhf = ruleEngine.getModuleHandlerFactory(child.getTypeUID());
+                if (mhf == null) {
+                    continue;
+                }
+                mhf.ungetHandler(child, childModulePrefix + ":" + module.getId(), childHandler);
             }
         }
         String ruleId = getRuleId(childModulePrefix);
@@ -157,18 +161,18 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
      * properties and configuration of composite module see:
      * {@link ReferenceResolver#updateConfiguration(Configuration, Map, Logger)}.
      *
-     * @param compositeConfig   configuration values of composite module.
-     * @param childModules      list of child modules
+     * @param compositeConfig configuration values of composite module.
+     * @param childModules list of child modules
      * @param childModulePrefix defines UID of child module. The rule id is not enough for prefix when a composite type
-     *                          is used more then one time in one and the same rule. For example the prefix can be:
-     *                          ruleId:compositeModuleId:compositeModileId2.
+     *            is used more then one time in one and the same rule. For example the prefix can be:
+     *            ruleId:compositeModuleId:compositeModileId2.
      * @return map of pairs of module and its handler. Return null when some of the child modules can not find its
      *         handler.
      */
     @SuppressWarnings("unchecked")
     private <T extends Module, MT extends ModuleHandler> LinkedHashMap<T, MT> getChildHandlers(String compositeModuleId,
             Configuration compositeConfig, List<T> childModules, String childModulePrefix) {
-        LinkedHashMap<T, MT> mapModuleToHandler = new LinkedHashMap<T, MT>();
+        LinkedHashMap<T, MT> mapModuleToHandler = new LinkedHashMap<>();
         for (T child : childModules) {
             String ruleId = getRuleId(childModulePrefix);
             ruleEngine.updateMapModuleTypeToRule(ruleId, child.getTypeUID());
@@ -190,5 +194,4 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
         }
         return mapModuleToHandler;
     }
-
 }

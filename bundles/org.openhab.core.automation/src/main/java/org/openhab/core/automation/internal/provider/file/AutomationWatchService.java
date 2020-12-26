@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -19,7 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
 
-import org.eclipse.smarthome.core.service.AbstractWatchService;
+import org.openhab.core.service.AbstractWatchService;
 
 /**
  * This class is an implementation of {@link AbstractWatchService} which is responsible for tracking changes in file
@@ -27,8 +27,7 @@ import org.eclipse.smarthome.core.service.AbstractWatchService;
  * <p>
  * It provides functionality for tracking {@link #watchingDir} changes to import or remove the automation objects.
  *
- * @author Ana Dimova - Initial Contribution
- *
+ * @author Ana Dimova - Initial contribution
  */
 @SuppressWarnings("rawtypes")
 public class AutomationWatchService extends AbstractWatchService {
@@ -54,12 +53,11 @@ public class AutomationWatchService extends AbstractWatchService {
     protected void processWatchEvent(WatchEvent<?> event, Kind<?> kind, Path path) {
         File file = path.toFile();
         if (!file.isHidden()) {
-            if (kind.equals(ENTRY_DELETE)) {
+            if (ENTRY_DELETE.equals(kind)) {
                 provider.removeResources(file);
             } else if (file.canRead()) {
                 provider.importResources(file);
             }
         }
     }
-
 }

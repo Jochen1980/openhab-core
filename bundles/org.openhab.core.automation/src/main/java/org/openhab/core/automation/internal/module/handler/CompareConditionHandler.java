@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -18,24 +18,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.smarthome.core.types.State;
-import org.eclipse.smarthome.core.types.TypeParser;
 import org.openhab.core.automation.Condition;
-import org.openhab.core.automation.handler.BaseModuleHandler;
-import org.openhab.core.automation.handler.ConditionHandler;
+import org.openhab.core.automation.handler.BaseConditionModuleHandler;
 import org.openhab.core.automation.internal.module.exception.UncomparableException;
+import org.openhab.core.types.State;
+import org.openhab.core.types.TypeParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Generic Comparation Condition
  *
- * @author Benedikt Niehues - Initial contribution and API
- *
+ * @author Benedikt Niehues - Initial contribution
  */
-public class CompareConditionHandler extends BaseModuleHandler<Condition> implements ConditionHandler {
-
-    public final Logger logger = LoggerFactory.getLogger(CompareConditionHandler.class);
+public class CompareConditionHandler extends BaseConditionModuleHandler {
 
     public static final String MODULE_TYPE = "core.GenericCompareCondition";
 
@@ -43,6 +39,8 @@ public class CompareConditionHandler extends BaseModuleHandler<Condition> implem
     public static final String INPUT_LEFT_FIELD = "inputproperty";
     public static final String RIGHT_OP = "right";
     public static final String OPERATOR = "operator";
+
+    public final Logger logger = LoggerFactory.getLogger(CompareConditionHandler.class);
 
     public CompareConditionHandler(Condition module) {
         super(module);
@@ -56,7 +54,8 @@ public class CompareConditionHandler extends BaseModuleHandler<Condition> implem
         String rightOperandString = (rightObj != null && rightObj instanceof String) ? (String) rightObj : null;
         Object leftObjFieldNameObj = this.module.getConfiguration().get(INPUT_LEFT_FIELD);
         String leftObjectFieldName = (leftObjFieldNameObj != null && leftObjFieldNameObj instanceof String)
-                ? (String) leftObjFieldNameObj : null;
+                ? (String) leftObjFieldNameObj
+                : null;
         if (rightOperandString == null || operator == null) {
             return false;
         } else {
@@ -82,7 +81,7 @@ public class CompareConditionHandler extends BaseModuleHandler<Condition> implem
                     case "EQUALS":
                         // EQUALS
                         if (toCompare == null) {
-                            if (rightOperandString.equals("null") || rightOperandString.equals("")) {
+                            if ("null".equals(rightOperandString) || "".equals(rightOperandString)) {
                                 return true;
                             } else {
                                 return false;
@@ -94,7 +93,7 @@ public class CompareConditionHandler extends BaseModuleHandler<Condition> implem
                     case "GT":
                     case ">":
                         // Greater
-                        if (toCompare == null || rightValue == null) {
+                        if (toCompare == null) {
                             return false;
                         } else {
                             return compare(toCompare, rightValue) > 0;
@@ -104,7 +103,7 @@ public class CompareConditionHandler extends BaseModuleHandler<Condition> implem
                     case ">=":
                     case "=>":
                         // Greater or equal
-                        if (toCompare == null || rightValue == null) {
+                        if (toCompare == null) {
                             return false;
                         } else {
                             return compare(toCompare, rightValue) >= 0;
@@ -112,7 +111,7 @@ public class CompareConditionHandler extends BaseModuleHandler<Condition> implem
                     case "lt":
                     case "LT":
                     case "<":
-                        if (toCompare == null || rightValue == null) {
+                        if (toCompare == null) {
                             return false;
                         } else {
                             return compare(toCompare, rightValue) < 0;
@@ -121,14 +120,14 @@ public class CompareConditionHandler extends BaseModuleHandler<Condition> implem
                     case "LTE":
                     case "<=":
                     case "=<":
-                        if (toCompare == null || rightValue == null) {
+                        if (toCompare == null) {
                             return false;
                         } else {
                             return compare(toCompare, rightValue) <= 0;
                         }
                     case "matches":
                         // Matcher...
-                        if (toCompare instanceof String && rightValue != null && rightValue instanceof String) {
+                        if (toCompare instanceof String && rightValue instanceof String) {
                             return ((String) toCompare).matches((String) rightValue);
                         }
                     default:
@@ -157,11 +156,11 @@ public class CompareConditionHandler extends BaseModuleHandler<Condition> implem
     }
 
     private Object getRightOperandValue(String rightOperandString2, Object toCompare) {
-        if (rightOperandString2.equals("null")) {
+        if ("null".equals(rightOperandString2)) {
             return rightOperandString2;
         }
         if (toCompare instanceof State) {
-            List<Class<? extends State>> stateTypeList = new ArrayList<Class<? extends State>>();
+            List<Class<? extends State>> stateTypeList = new ArrayList<>();
             stateTypeList.add(((State) toCompare).getClass());
             return TypeParser.parseState(stateTypeList, rightOperandString2);
         } else if (toCompare instanceof Integer) {
@@ -191,5 +190,4 @@ public class CompareConditionHandler extends BaseModuleHandler<Condition> implem
             }
         }
     }
-
 }

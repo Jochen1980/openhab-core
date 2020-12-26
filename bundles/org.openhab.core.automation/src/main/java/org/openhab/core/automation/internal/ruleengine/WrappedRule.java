@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -30,7 +30,7 @@ import org.openhab.core.automation.handler.ModuleHandler;
 /**
  * This class holds the information that is necessary for the rule engine.
  *
- * @author Markus Rathgeb - Initial Contribution and API
+ * @author Markus Rathgeb - Initial contribution
  */
 @NonNullByDefault
 public class WrappedRule {
@@ -38,12 +38,11 @@ public class WrappedRule {
     private static <T extends WrappedModule, U extends Module> List<T> map(final List<U> in, Function<U, T> factory,
             final Collection<WrappedModule<Module, ModuleHandler>> coll) {
         // explicit cast to List <? extends T> as JDK compiler complains
-        return Collections.unmodifiableList((List <? extends T>)in.stream().map(module -> {
+        return Collections.unmodifiableList((List<? extends T>) in.stream().map(module -> {
             final T impl = factory.apply(module);
             coll.add(impl);
             return impl;
         }).collect(Collectors.toList()));
-
     }
 
     private final Rule rule;
@@ -95,5 +94,4 @@ public class WrappedRule {
     public List<WrappedModule<Module, ModuleHandler>> getModules() {
         return modules;
     }
-
 }

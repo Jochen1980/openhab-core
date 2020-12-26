@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -16,12 +16,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * This interface provides opportunity to plug different parsers, for example JSON, GSON or other.
  *
- * @author Ana Dimova - Initial Contribution
- *
+ * @author Ana Dimova - Initial contribution
  */
+@NonNullByDefault
 public interface Parser<T> {
 
     /**
@@ -66,7 +68,7 @@ public interface Parser<T> {
      * @param reader {@link InputStreamReader} which reads from a file containing automation object representations.
      * @return a set of automation objects. Each object represents the result of parsing of one object.
      * @throws ParsingException is thrown when json format is wrong or there is a semantic error in description of
-     *                          the automation objects.
+     *             the automation objects.
      */
     public Set<T> parse(InputStreamReader reader) throws ParsingException;
 
@@ -74,10 +76,9 @@ public interface Parser<T> {
      * Records the automation objects in a file with some particular format.
      *
      * @param dataObjects provides an objects for export.
-     * @param writer      is {@link OutputStreamWriter} used to write the automation objects in a file.
+     * @param writer is {@link OutputStreamWriter} used to write the automation objects in a file.
      * @throws Exception is thrown when I/O operation has failed or has been interrupted or generating of the text fails
-     *                   for some reasons.
+     *             for some reasons.
      */
     public void serialize(Set<T> dataObjects, OutputStreamWriter writer) throws Exception;
-
 }

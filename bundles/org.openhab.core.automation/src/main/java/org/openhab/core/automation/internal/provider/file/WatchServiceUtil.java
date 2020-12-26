@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -19,20 +19,19 @@ import java.util.Map;
 /**
  * This class isolates the java 1.7 functionality which tracks the file system changes.
  *
- * @author Ana Dimova - Initial Contribution
- *
+ * @author Ana Dimova - Initial contribution
  */
 @SuppressWarnings("rawtypes")
 public class WatchServiceUtil {
 
-    private static final Map<AbstractFileProvider, Map<String, AutomationWatchService>> WATCH_SERVICES = new HashMap<AbstractFileProvider, Map<String, AutomationWatchService>>();
+    private static final Map<AbstractFileProvider, Map<String, AutomationWatchService>> WATCH_SERVICES = new HashMap<>();
 
     public static void initializeWatchService(String watchingDir, AbstractFileProvider provider) {
         AutomationWatchService aws = null;
         synchronized (WATCH_SERVICES) {
             Map<String, AutomationWatchService> watchers = WATCH_SERVICES.get(provider);
             if (watchers == null) {
-                watchers = new HashMap<String, AutomationWatchService>();
+                watchers = new HashMap<>();
                 WATCH_SERVICES.put(provider, watchers);
             }
             if (watchers.get(watchingDir) == null) {
@@ -51,7 +50,7 @@ public class WatchServiceUtil {
         synchronized (WATCH_SERVICES) {
             Map<String, AutomationWatchService> watchers = WATCH_SERVICES.get(provider);
             aws = watchers.remove(watchingDir);
-            if (watchers.size() == 0) {
+            if (watchers.isEmpty()) {
                 WATCH_SERVICES.remove(provider);
             }
         }

@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.core.automation.Rule;
 import org.openhab.core.automation.template.TemplateProvider;
 import org.openhab.core.automation.type.ModuleTypeProvider;
@@ -29,23 +30,22 @@ import org.slf4j.LoggerFactory;
  * This class is responsible for tracking the bundles providing automation resources and delegating the processing to
  * the responsible providers in separate thread.
  *
- * @author Ana Dimova - Initial Contribution, host-fragment support
+ * @author Ana Dimova - Initial contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  * @param <E>
- *
  */
-public class AutomationResourceBundlesEventQueue<E> implements Runnable {
+public class AutomationResourceBundlesEventQueue<@NonNull E> implements Runnable {
 
     /**
      * This field keeps instance of {@link Logger} that is used for logging.
      */
-    protected Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final Logger logger = LoggerFactory.getLogger(AutomationResourceBundlesEventQueue.class);
 
     /**
      * This field serves for saving the BundleEvents for the bundles providing automation resources until their
      * processing completes.
      */
-    private List<BundleEvent> queue = new ArrayList<BundleEvent>();
+    private List<BundleEvent> queue = new ArrayList<>();
 
     /**
      * This field is for synchronization purposes
@@ -174,7 +174,7 @@ public class AutomationResourceBundlesEventQueue<E> implements Runnable {
             return;
         }
         if (shared) {
-            queue = new LinkedList<BundleEvent>();
+            queue = new LinkedList<>();
             shared = false;
         }
         if (queue.add(event)) {
@@ -232,7 +232,7 @@ public class AutomationResourceBundlesEventQueue<E> implements Runnable {
             return;
         }
         if (shared) {
-            this.queue = new LinkedList<BundleEvent>();
+            this.queue = new LinkedList<>();
             shared = false;
         }
         if (this.queue.addAll(queue)) {
@@ -245,5 +245,4 @@ public class AutomationResourceBundlesEventQueue<E> implements Runnable {
             }
         }
     }
-
 }

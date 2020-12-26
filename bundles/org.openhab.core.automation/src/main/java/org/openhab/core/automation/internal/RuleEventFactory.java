@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -17,9 +17,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.smarthome.core.events.AbstractEventFactory;
-import org.eclipse.smarthome.core.events.Event;
-import org.eclipse.smarthome.core.events.EventFactory;
 import org.openhab.core.automation.Rule;
 import org.openhab.core.automation.RuleStatusInfo;
 import org.openhab.core.automation.dto.RuleDTO;
@@ -28,6 +25,9 @@ import org.openhab.core.automation.events.RuleAddedEvent;
 import org.openhab.core.automation.events.RuleRemovedEvent;
 import org.openhab.core.automation.events.RuleStatusInfoEvent;
 import org.openhab.core.automation.events.RuleUpdatedEvent;
+import org.openhab.core.events.AbstractEventFactory;
+import org.openhab.core.events.Event;
+import org.openhab.core.events.EventFactory;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class is a factory that creates Rule Events.
  *
- * @author Benedikt Niehues - initial contribution
+ * @author Benedikt Niehues - Initial contribution
  * @author Markus Rathgeb - Use the DTO for the Rule representation
  */
 @Component(service = EventFactory.class, immediate = true)
@@ -43,13 +43,13 @@ public class RuleEventFactory extends AbstractEventFactory {
 
     private final Logger logger = LoggerFactory.getLogger(RuleEventFactory.class);
 
-    private static final String RULE_STATE_EVENT_TOPIC = "smarthome/rules/{ruleID}/state";
+    private static final String RULE_STATE_EVENT_TOPIC = "openhab/rules/{ruleID}/state";
 
-    private static final String RULE_ADDED_EVENT_TOPIC = "smarthome/rules/{ruleID}/added";
+    private static final String RULE_ADDED_EVENT_TOPIC = "openhab/rules/{ruleID}/added";
 
-    private static final String RULE_REMOVED_EVENT_TOPIC = "smarthome/rules/{ruleID}/removed";
+    private static final String RULE_REMOVED_EVENT_TOPIC = "openhab/rules/{ruleID}/removed";
 
-    private static final String RULE_UPDATED_EVENT_TOPIC = "smarthome/rules/{ruleID}/updated";
+    private static final String RULE_UPDATED_EVENT_TOPIC = "openhab/rules/{ruleID}/updated";
 
     private static final Set<String> SUPPORTED_TYPES = new HashSet<>();
 
@@ -67,19 +67,16 @@ public class RuleEventFactory extends AbstractEventFactory {
     @Override
     protected Event createEventByType(String eventType, String topic, String payload, String source) throws Exception {
         logger.trace("creating ruleEvent of type: {}", eventType);
-        if (eventType == null) {
-            return null;
-        }
-        if (eventType.equals(RuleAddedEvent.TYPE)) {
+        if (RuleAddedEvent.TYPE.equals(eventType)) {
             return createRuleAddedEvent(topic, payload, source);
-        } else if (eventType.equals(RuleRemovedEvent.TYPE)) {
+        } else if (RuleRemovedEvent.TYPE.equals(eventType)) {
             return createRuleRemovedEvent(topic, payload, source);
-        } else if (eventType.equals(RuleStatusInfoEvent.TYPE)) {
+        } else if (RuleStatusInfoEvent.TYPE.equals(eventType)) {
             return createRuleStatusInfoEvent(topic, payload, source);
-        } else if (eventType.equals(RuleUpdatedEvent.TYPE)) {
+        } else if (RuleUpdatedEvent.TYPE.equals(eventType)) {
             return createRuleUpdatedEvent(topic, payload, source);
         }
-        return null;
+        throw new IllegalArgumentException("The event type '" + eventType + "' is not supported by this factory.");
     }
 
     private Event createRuleUpdatedEvent(String topic, String payload, String source) {
@@ -116,9 +113,9 @@ public class RuleEventFactory extends AbstractEventFactory {
     /**
      * Creates a rule updated event.
      *
-     * @param rule    the new rule.
+     * @param rule the new rule.
      * @param oldRule the rule that has been updated.
-     * @param source  the source of the event.
+     * @param source the source of the event.
      * @return {@link RuleUpdatedEvent} instance.
      */
     public static RuleUpdatedEvent createRuleUpdatedEvent(Rule rule, Rule oldRule, String source) {
@@ -136,8 +133,8 @@ public class RuleEventFactory extends AbstractEventFactory {
      * Creates a rule status info event.
      *
      * @param statusInfo the status info of the event.
-     * @param ruleUID    the UID of the rule for which the event is created.
-     * @param source     the source of the event.
+     * @param ruleUID the UID of the rule for which the event is created.
+     * @param source the source of the event.
      * @return {@link RuleStatusInfoEvent} instance.
      */
     public static RuleStatusInfoEvent createRuleStatusInfoEvent(RuleStatusInfo statusInfo, String ruleUID,
@@ -150,7 +147,7 @@ public class RuleEventFactory extends AbstractEventFactory {
     /**
      * Creates a rule removed event.
      *
-     * @param rule   the rule for which this event is created.
+     * @param rule the rule for which this event is created.
      * @param source the source of the event.
      * @return {@link RuleRemovedEvent} instance.
      */
@@ -164,7 +161,7 @@ public class RuleEventFactory extends AbstractEventFactory {
     /**
      * Creates a rule added event.
      *
-     * @param rule   the rule for which this event is created.
+     * @param rule the rule for which this event is created.
      * @param source the source of the event.
      * @return {@link RuleAddedEvent} instance.
      */

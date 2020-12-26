@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -16,16 +16,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTOMapper;
-import org.openhab.core.automation.dto.CompositeConditionTypeDTO;
-import org.openhab.core.automation.dto.ConditionTypeDTO;
 import org.openhab.core.automation.type.CompositeConditionType;
 import org.openhab.core.automation.type.ConditionType;
+import org.openhab.core.config.core.dto.ConfigDescriptionDTOMapper;
 
 /**
  * This is a utility class to convert between the respective object and its DTO.
  *
- * @author Markus Rathgeb - Initial contribution and API
+ * @author Markus Rathgeb - Initial contribution
  * @author Ana Dimova - extends Condition Module type DTOs with composites
  */
 public class ConditionTypeDTOMapper extends ModuleTypeDTOMapper {
@@ -58,7 +56,7 @@ public class ConditionTypeDTOMapper extends ModuleTypeDTOMapper {
         if (types == null) {
             return null;
         }
-        final List<ConditionTypeDTO> dtos = new ArrayList<ConditionTypeDTO>(types.size());
+        final List<ConditionTypeDTO> dtos = new ArrayList<>(types.size());
         for (final ConditionType type : types) {
             if (type instanceof CompositeConditionType) {
                 dtos.add(map((CompositeConditionType) type));
@@ -74,5 +72,4 @@ public class ConditionTypeDTOMapper extends ModuleTypeDTOMapper {
         conditionTypeDto.inputs = conditionType.getInputs();
         return conditionTypeDto;
     }
-
 }

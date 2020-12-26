@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -19,11 +19,11 @@ import java.util.UUID;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
-import org.eclipse.smarthome.core.common.registry.Identifiable;
 import org.openhab.core.automation.Module;
 import org.openhab.core.automation.Rule;
 import org.openhab.core.automation.Visibility;
+import org.openhab.core.common.registry.Identifiable;
+import org.openhab.core.config.core.ConfigDescriptionParameter;
 
 /**
  * This class provides common functionality for creating {@link ModuleType} instances. Each {@link ModuleType} instance
@@ -35,9 +35,8 @@ import org.openhab.core.automation.Visibility;
  * Whether the {@link ModuleType}s can be used by anyone, depends from their {@link Visibility} value, but they can be
  * modified only by their creator.
  *
- * @author Yordan Mihaylov - Initial Contribution
- * @author Ana Dimova - Initial Contribution
- *
+ * @author Yordan Mihaylov - Initial contribution
+ * @author Ana Dimova - Initial contribution
  */
 @NonNullByDefault
 public abstract class ModuleType implements Identifiable<String> {
@@ -63,14 +62,12 @@ public abstract class ModuleType implements Identifiable<String> {
     /**
      * Defines short and accurate, human-readable label of the {@link ModuleType}.
      */
-    @Nullable
-    private final String label;
+    private final @Nullable String label;
 
     /**
      * Defines detailed, human-readable description of usage of {@link ModuleType} and its benefits.
      */
-    @Nullable
-    private final String description;
+    private final @Nullable String description;
 
     /**
      * Describes meta-data for the configuration of the future {@link Module} instances.
@@ -81,8 +78,8 @@ public abstract class ModuleType implements Identifiable<String> {
      * Creates a {@link ModuleType} instance. This constructor is responsible to initialize common base properties of
      * the {@link ModuleType}s.
      *
-     * @param UID                the {@link ModuleType}'s identifier, or {@code null} if a random identifier should be
-     *                           generated.
+     * @param UID the {@link ModuleType}'s identifier, or {@code null} if a random identifier should be
+     *            generated.
      * @param configDescriptions describing meta-data for the configuration of the future {@link Module} instances
      */
     public ModuleType(@Nullable String UID, @Nullable List<ConfigDescriptionParameter> configDescriptions) {
@@ -93,17 +90,17 @@ public abstract class ModuleType implements Identifiable<String> {
      * Creates a {@link ModuleType} instance. This constructor is responsible to initialize all common properties of
      * the {@link ModuleType}s.
      *
-     * @param UID                the {@link ModuleType}'s identifier, or {@code null} if a random identifier should be
-     *                           generated.
+     * @param UID the {@link ModuleType}'s identifier, or {@code null} if a random identifier should be
+     *            generated.
      * @param configDescriptions describing meta-data for the configuration of the future {@link Module} instances.
-     * @param label              a short and accurate, human-readable label of the {@link ModuleType}.
-     * @param description        a detailed, human-readable description of usage of {@link ModuleType} and its benefits.
-     * @param tags               defines categories that fit the {@link ModuleType} and which can serve as criteria for
-     *                           searching or filtering it.
-     * @param visibility         determines whether the {@link ModuleType} can be used by anyone if it is
-     *                           {@link Visibility#VISIBLE} or only by its creator if it is {@link Visibility#HIDDEN}.
-     *                           If {@code null} is provided the default visibility {@link Visibility#VISIBLE} will be
-     *                           used.
+     * @param label a short and accurate, human-readable label of the {@link ModuleType}.
+     * @param description a detailed, human-readable description of usage of {@link ModuleType} and its benefits.
+     * @param tags defines categories that fit the {@link ModuleType} and which can serve as criteria for
+     *            searching or filtering it.
+     * @param visibility determines whether the {@link ModuleType} can be used by anyone if it is
+     *            {@link Visibility#VISIBLE} or only by its creator if it is {@link Visibility#HIDDEN}.
+     *            If {@code null} is provided the default visibility {@link Visibility#VISIBLE} will be
+     *            used.
      */
     public ModuleType(@Nullable String UID, @Nullable List<ConfigDescriptionParameter> configDescriptions,
             @Nullable String label, @Nullable String description, @Nullable Set<String> tags,
@@ -201,5 +198,4 @@ public abstract class ModuleType implements Identifiable<String> {
         }
         return true;
     }
-
 }

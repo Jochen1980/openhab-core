@@ -1,27 +1,25 @@
 Bundle-SymbolicName: ${project.artifactId}
-Export-Package: org.eclipse.smarthome.model,\
- org.eclipse.smarthome.model.formatting,\
- org.eclipse.smarthome.model.generator,\
- org.eclipse.smarthome.model.parser.antlr,\
- org.eclipse.smarthome.model.parser.antlr.internal,\
- org.eclipse.smarthome.model.scoping,\
- org.eclipse.smarthome.model.serializer,\
- org.eclipse.smarthome.model.services,\
- org.eclipse.smarthome.model.sitemap,\
- org.eclipse.smarthome.model.sitemap.impl,\
- org.eclipse.smarthome.model.sitemap.util,\
- org.eclipse.smarthome.model.validation
-Import-Package: org.apache.commons.lang,\
- org.apache.log4j,\
+Export-Package: org.openhab.core.model.sitemap,\
+ org.openhab.core.model.sitemap.formatting,\
+ org.openhab.core.model.sitemap.generator,\
+ org.openhab.core.model.sitemap.parser.antlr,\
+ org.openhab.core.model.sitemap.parser.antlr.internal,\
+ org.openhab.core.model.sitemap.scoping,\
+ org.openhab.core.model.sitemap.serializer,\
+ org.openhab.core.model.sitemap.services,\
+ org.openhab.core.model.sitemap.sitemap,\
+ org.openhab.core.model.sitemap.sitemap.impl,\
+ org.openhab.core.model.sitemap.sitemap.util,\
+ org.openhab.core.model.sitemap.validation
+Import-Package: org.apache.log4j,\
  org.eclipse.jdt.annotation;resolution:=optional,\
- org.eclipse.smarthome.core.items.dto,\
- org.eclipse.smarthome.model.core,\
+ org.openhab.core.items.dto,\
+ org.openhab.core.model.core,\
  org.eclipse.xtext.xbase.lib,\
  org.osgi.framework,\
  org.osgi.service.cm,\
  org.slf4j
 Require-Bundle: org.antlr.runtime,\
- org.apache.commons.logging;resolution:=optional,\
  org.eclipse.emf.common,\
  org.eclipse.emf.ecore,\
  org.eclipse.emf.mwe2.launch;resolution:=optional,\
@@ -30,4 +28,4 @@ Require-Bundle: org.antlr.runtime,\
  org.eclipse.xtext,\
  org.eclipse.xtext.generator;resolution:=optional,\
  org.eclipse.xtext.util,\
- org.eclipse.xtext.xbase.lib;bundle-version="2.14.0"
+ org.eclipse.xtext.xbase.lib;bundle-version="2.23.0"

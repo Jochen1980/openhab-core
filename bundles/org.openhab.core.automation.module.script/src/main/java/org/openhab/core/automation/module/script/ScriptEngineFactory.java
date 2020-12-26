@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -16,24 +16,45 @@ import java.util.List;
 import java.util.Map;
 
 import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.core.automation.module.script.internal.provider.ScriptModuleTypeProvider;
 
 /**
- * This class is used by the ScriptManager to load ScriptEngines.
- * This is meant as a way to allow other OSGi bundles to provide custom Script-Languages with special needs (like
- * Nashorn, Groovy, etc.)
+ * This class is used by the ScriptEngineManager to load ScriptEngines. This is meant as a way to allow other OSGi
+ * bundles to provide custom script-languages with special needs, e.g. Nashorn, Jython, Groovy, etc.
  *
- * @author Simon Merschjohann
- *
+ * @author Simon Merschjohann - Initial contribution
+ * @author Scott Rushworth - added/changed methods and parameters when implementing {@link ScriptModuleTypeProvider}
+ * @author Jonathan Gilbert - added context keys
  */
+@NonNullByDefault
 public interface ScriptEngineFactory {
 
-    /**
-     * @return the list of supported language endings e.g. py, jy
-     */
-    List<String> getLanguages();
+    static final ScriptEngineManager ENGINE_MANAGER = new ScriptEngineManager();
 
     /**
-     * "scopes" new values into the given ScriptEngine
+     * Key to access engine identifier in script context.
+     */
+    String CONTEXT_KEY_ENGINE_IDENTIFIER = "oh.engine-identifier";
+
+    /**
+     * Key to access Extension Accessor {@link ScriptExtensionAccessor}
+     */
+    String CONTEXT_KEY_EXTENSION_ACCESSOR = "oh.extension-accessor";
+
+    /**
+     * This method returns a list of file extensions and MimeTypes that are supported by the ScriptEngine, e.g. py,
+     * application/python, js, application/javascript, etc.
+     *
+     * @return List of supported script types
+     */
+    List<String> getScriptTypes();
+
+    /**
+     * This method "scopes" new values into the given ScriptEngine.
      *
      * @param scriptEngine
      * @param scopeValues
@@ -41,19 +62,11 @@ public interface ScriptEngineFactory {
     void scopeValues(ScriptEngine scriptEngine, Map<String, Object> scopeValues);
 
     /**
-     * created a new ScriptEngine
+     * This method creates a new ScriptEngine based on the supplied file extension or MimeType.
      *
-     * @param fileExtension
-     * @return
+     * @param scriptType a file extension (script) or MimeType (ScriptAction or ScriptCondition)
+     * @return ScriptEngine or null
      */
-    ScriptEngine createScriptEngine(String fileExtension);
-
-    /**
-     * checks if the script is supported. Does not necessarily be equal to getLanguages()
-     *
-     * @param fileExtension
-     * @return
-     */
-    boolean isSupported(String fileExtension);
-
+    @Nullable
+    ScriptEngine createScriptEngine(String scriptType);
 }

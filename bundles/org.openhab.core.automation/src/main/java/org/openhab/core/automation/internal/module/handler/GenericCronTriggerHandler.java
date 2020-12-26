@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -12,13 +12,13 @@
  */
 package org.openhab.core.automation.internal.module.handler;
 
-import org.eclipse.smarthome.core.scheduler.CronScheduler;
-import org.eclipse.smarthome.core.scheduler.SchedulerRunnable;
 import org.openhab.core.automation.ModuleHandlerCallback;
 import org.openhab.core.automation.Trigger;
 import org.openhab.core.automation.handler.BaseTriggerModuleHandler;
 import org.openhab.core.automation.handler.TriggerHandlerCallback;
-import org.eclipse.smarthome.core.scheduler.ScheduledCompletableFuture;
+import org.openhab.core.scheduler.CronScheduler;
+import org.openhab.core.scheduler.ScheduledCompletableFuture;
+import org.openhab.core.scheduler.SchedulerRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,19 +27,19 @@ import org.slf4j.LoggerFactory;
  * based on a cron expression. The cron expression can be set with the
  * configuration.
  *
- * @author Christoph Knauf - Initial Contribution
+ * @author Christoph Knauf - Initial contribution
  * @author Yordan Mihaylov - Remove Quarz lib dependency
- *
  */
 public class GenericCronTriggerHandler extends BaseTriggerModuleHandler implements SchedulerRunnable {
-
-    private final Logger logger = LoggerFactory.getLogger(GenericCronTriggerHandler.class);
 
     public static final String MODULE_TYPE_ID = "timer.GenericCronTrigger";
     public static final String CALLBACK_CONTEXT_NAME = "CALLBACK";
     public static final String MODULE_CONTEXT_NAME = "MODULE";
 
-    private static final String CFG_CRON_EXPRESSION = "cronExpression";
+    public static final String CFG_CRON_EXPRESSION = "cronExpression";
+
+    private final Logger logger = LoggerFactory.getLogger(GenericCronTriggerHandler.class);
+
     private final CronScheduler scheduler;
     private final String expression;
     private ScheduledCompletableFuture<?> schedule;
@@ -73,6 +73,10 @@ public class GenericCronTriggerHandler extends BaseTriggerModuleHandler implemen
 
     @Override
     public void run() {
-        ((TriggerHandlerCallback) callback).triggered(module, null);
+        if (callback != null) {
+            ((TriggerHandlerCallback) callback).triggered(module, null);
+        } else {
+            logger.debug("Tried to trigger, but callback isn't available!");
+        }
     }
 }

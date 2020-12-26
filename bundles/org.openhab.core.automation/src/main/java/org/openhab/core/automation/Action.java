@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -15,10 +15,10 @@ package org.openhab.core.automation;
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.openhab.core.automation.type.ActionType;
 import org.openhab.core.automation.type.Input;
 import org.openhab.core.automation.type.Output;
+import org.openhab.core.config.core.ConfigDescriptionParameter;
 
 /**
  * This interface represents automation {@code Action} modules which are the expected result of {@link Rule}s execution.
@@ -34,9 +34,9 @@ import org.openhab.core.automation.type.Output;
  * <p>
  * Action modules are placed in the <b>actions</b> section of the {@link Rule} definition.
  *
- * @author Yordan Mihaylov - Initial Contribution
- * @author Ana Dimova - Initial Contribution
- * @author Vasil Ilchev - Initial Contribution
+ * @author Yordan Mihaylov - Initial contribution
+ * @author Ana Dimova - Initial contribution
+ * @author Vasil Ilchev - Initial contribution
  */
 @NonNullByDefault
 public interface Action extends Module {
@@ -48,5 +48,4 @@ public interface Action extends Module {
      * @return a map with the input references of this action.
      */
     Map<String, String> getInputs();
-
 }

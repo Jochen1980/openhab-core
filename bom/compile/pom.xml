@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.openhab.core.bom</groupId>
     <artifactId>org.openhab.core.reactor.bom</artifactId>
-    <version>2.5.0-SNAPSHOT</version>
+    <version>3.1.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>org.openhab.core.bom.compile</artifactId>
@@ -17,7 +17,8 @@
   <description>The dependencies that are used to compile the core bundles</description>
 
   <properties>
-    <jetty.version>9.3.25.v20180904</jetty.version>
+    <jetty.version>9.4.20.v20190813</jetty.version>
+    <swagger.version>2.1.0</swagger.version>
   </properties>
 
   <dependencies>
@@ -29,12 +30,12 @@
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>osgi.cmpn</artifactId>
-      <version>6.0.0</version>
+      <version>7.0.0</version>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>osgi.annotation</artifactId>
-      <version>6.0.0</version>
+      <version>7.0.0</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -59,24 +60,6 @@
 
     <!-- Apache Commons -->
     <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-      <version>3.2.1</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-exec</artifactId>
-      <version>1.1</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.servicemix.bundles</groupId>
-      <artifactId>org.apache.servicemix.bundles.commons-httpclient</artifactId>
-      <version>3.1_7</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>2.2</version>
@@ -89,33 +72,36 @@
       <scope>compile</scope>
     </dependency>
 
-    <!-- EclipseSource JAX RS -->
+    <!-- Californium -->
     <dependency>
-      <groupId>com.eclipsesource.jaxrs</groupId>
-      <artifactId>publisher</artifactId>
-      <version>5.3.1</version>
-      <scope>compile</scope>
+      <groupId>org.eclipse.californium</groupId>
+      <artifactId>californium-core</artifactId>
+      <version>2.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.californium</groupId>
+      <artifactId>scandium</artifactId>
+      <version>2.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.californium</groupId>
+      <artifactId>element-connector</artifactId>
+      <version>2.0.0</version>
     </dependency>
 
     <!-- Gson -->
     <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <version>2.3.1</version>
+      <groupId>org.eclipse.orbit.bundles</groupId>
+      <artifactId>com.google.gson</artifactId>
+      <version>2.8.2.v20180104-1110</version>
       <scope>compile</scope>
     </dependency>
 
-    <!-- Jackson -->
+    <!-- JBBP -->
     <dependency>
-      <groupId>org.codehaus.jackson</groupId>
-      <artifactId>jackson-core-asl</artifactId>
-      <version>1.9.2</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.jackson</groupId>
-      <artifactId>jackson-mapper-asl</artifactId>
-      <version>1.9.2</version>
+      <groupId>com.igormaznitsa</groupId>
+      <artifactId>jbbp</artifactId>
+      <version>1.4.1</version>
       <scope>compile</scope>
     </dependency>
 
@@ -155,15 +141,7 @@
     <dependency>
       <groupId>org.jmdns</groupId>
       <artifactId>jmdns</artifactId>
-      <version>3.5.5</version>
-      <scope>compile</scope>
-    </dependency>
-
-    <!-- Joda Time -->
-    <dependency>
-      <groupId>joda-time</groupId>
-      <artifactId>joda-time</artifactId>
-      <version>2.9.2</version>
+      <version>3.5.6</version>
       <scope>compile</scope>
     </dependency>
 
@@ -171,15 +149,7 @@
     <dependency>
       <groupId>org.jupnp</groupId>
       <artifactId>org.jupnp</artifactId>
-      <version>2.5.1</version>
-      <scope>compile</scope>
-    </dependency>
-
-    <!-- MapDB -->
-    <dependency>
-      <groupId>org.mapdb</groupId>
-      <artifactId>mapdb</artifactId>
-      <version>1.0.9</version>
+      <version>2.5.2</version>
       <scope>compile</scope>
     </dependency>
 
@@ -193,39 +163,25 @@
     <dependency>
       <groupId>tec.uom</groupId>
       <artifactId>uom-se</artifactId>
-      <version>1.0.8</version>
+      <version>1.0.10</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>tec.uom.lib</groupId>
       <artifactId>uom-lib-common</artifactId>
-      <version>1.0.2</version>
+      <version>1.0.3</version>
       <scope>compile</scope>
     </dependency>
 
-    <!-- Paho MQTT -->
+    <!-- HiveMQ MQTT Client -->
     <dependency>
-      <groupId>org.eclipse.paho</groupId>
-      <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
-      <version>1.2.0</version>
+      <groupId>com.hivemq</groupId>
+      <artifactId>hivemq-mqtt-client</artifactId>
+      <version>1.1.2</version>
       <scope>compile</scope>
-    </dependency>
-
-    <!-- Quartz -->
-    <dependency>
-      <groupId>org.quartz-scheduler</groupId>
-      <artifactId>quartz</artifactId>
-      <version>2.2.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.quartz-scheduler</groupId>
-      <artifactId>quartz-jobs</artifactId>
-      <version>2.2.1</version>
     </dependency>
 
     <!-- Serial Communication -->
-    <!-- <dependency> <groupId>org.eclipse.kura</groupId> <artifactId>org.eclipse.soda.dk.comm</artifactId> <version>1.2.201</version>
-    <scope>compile</scope> </dependency> -->
     <dependency>
       <groupId>org.vesalainen.comm</groupId>
       <artifactId>javaxcomm</artifactId>
@@ -235,43 +191,121 @@
     <dependency>
       <groupId>com.neuronrobotics</groupId>
       <artifactId>nrjavaserial</artifactId>
-      <version>3.14.0</version>
+      <version>3.12.0</version>
       <scope>compile</scope>
     </dependency>
 
-    <!-- Servlet API -->
+    <!-- Servlet and JAX-RS API -->
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>3.1.0</version>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.apache.felix.http.servlet-api</artifactId>
+      <version>1.1.2</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.aries.spec</groupId>
+      <artifactId>org.apache.aries.javax.jax.rs-api</artifactId>
+      <version>1.0.0</version>
       <scope>compile</scope>
     </dependency>
 
     <!-- Swagger -->
     <dependency>
-      <groupId>io.swagger</groupId>
+      <groupId>io.swagger.core.v3</groupId>
       <artifactId>swagger-annotations</artifactId>
-      <version>1.5.5</version>
+      <version>${swagger.version}</version>
       <scope>compile</scope>
     </dependency>
-
-    <!-- WR RS API -->
     <dependency>
-      <groupId>javax.ws.rs</groupId>
-      <artifactId>javax.ws.rs-api</artifactId>
-      <version>2.0.1</version>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-core</artifactId>
+      <version>${swagger.version}</version>
       <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.xml.bind</groupId>
+          <artifactId>jaxb-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-jaxrs2</artifactId>
+      <version>${swagger.version}</version>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>jakarta.activation</groupId>
+          <artifactId>jakarta.activation-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- XStream -->
     <dependency>
-      <groupId>org.apache.servicemix.bundles</groupId>
-      <artifactId>org.apache.servicemix.bundles.xstream</artifactId>
-      <version>1.4.7_1</version>
+      <groupId>com.thoughtworks.xstream</groupId>
+      <artifactId>xstream</artifactId>
+      <version>1.4.15</version>
       <scope>compile</scope>
     </dependency>
 
-    <!-- <dependency> <groupId></groupId> <artifactId></artifactId> <version></version> <scope>compile</scope> </dependency> -->
+    <!-- jollyday -->
+    <dependency>
+      <groupId>de.jollyday</groupId>
+      <artifactId>jollyday</artifactId>
+      <version>0.5.10</version>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.xml.bind</groupId>
+          <artifactId>jaxb-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.glassfish.jaxb</groupId>
+          <artifactId>jaxb-runtime</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- JAXB -->
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+      <version>2.3.3</version>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>jakarta.activation</groupId>
+          <artifactId>jakarta.activation-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- JAX-WS -->
+    <dependency>
+      <groupId>org.apache.servicemix.specs</groupId>
+      <artifactId>org.apache.servicemix.specs.saaj-api-1.4</artifactId>
+      <version>1.4_2</version>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.xml.stream</groupId>
+          <artifactId>stax-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jvnet.staxex</groupId>
+          <artifactId>stax-ex</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- jose4j -->
+    <dependency>
+      <groupId>org.bitbucket.b_c</groupId>
+      <artifactId>jose4j</artifactId>
+      <version>0.7.0</version>
+      <scope>compile</scope>
+    </dependency>
+
   </dependencies>
 
 </project>

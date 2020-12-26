@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -12,14 +12,19 @@
  */
 package org.openhab.core.automation.handler;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * This Handler interface is used by the RuleManager to set a callback interface to
  * itself. The callback has to implemented {@link TriggerHandlerCallback} interface
  * and it is used to notify the RuleManager when {@link TriggerHandler} was triggered
  *
- * @author Yordan Mihaylov - Initial Contribution
- * @author Ana Dimova - Initial Contribution
- * @author Vasil Ilchev - Initial Contribution
+ * @author Yordan Mihaylov - Initial contribution
+ * @author Ana Dimova - Initial contribution
+ * @author Vasil Ilchev - Initial contribution
+ * @see ModuleHandler
  */
+@NonNullByDefault
 public interface TriggerHandler extends ModuleHandler {
+
 }

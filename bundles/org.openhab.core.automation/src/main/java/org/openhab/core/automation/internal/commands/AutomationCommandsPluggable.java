@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -16,10 +16,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
-import org.eclipse.smarthome.io.console.Console;
-import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.automation.Rule;
 import org.openhab.core.automation.RuleManager;
 import org.openhab.core.automation.RuleRegistry;
@@ -32,6 +32,8 @@ import org.openhab.core.automation.type.ConditionType;
 import org.openhab.core.automation.type.ModuleType;
 import org.openhab.core.automation.type.ModuleTypeRegistry;
 import org.openhab.core.automation.type.TriggerType;
+import org.openhab.core.io.console.Console;
+import org.openhab.core.io.console.extensions.ConsoleCommandExtension;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -42,9 +44,10 @@ import org.osgi.service.component.annotations.Reference;
  * This class provides functionality for defining and executing automation commands for importing, exporting, removing
  * and listing the automation objects.
  *
- * @author Ana Dimova - Initial Contribution
+ * @author Ana Dimova - Initial contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  */
+@NonNullByDefault
 @Component
 public class AutomationCommandsPluggable extends AutomationCommands implements ConsoleCommandExtension {
 
@@ -79,102 +82,47 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
     /**
      * This field holds the reference to the {@code RuleRegistry} providing the {@code Rule} automation objects.
      */
-    protected RuleRegistry ruleRegistry;
+    protected final RuleRegistry ruleRegistry;
 
     /**
      * This field holds the reference to the {@code RuleManager}.
      */
-    protected RuleManager ruleManager;
+    protected final RuleManager ruleManager;
 
     /**
      * This field holds the reference to the {@code TemplateRegistry} providing the {@code Template} automation objects.
      */
-    protected TemplateRegistry<RuleTemplate> templateRegistry;
+    protected final TemplateRegistry<RuleTemplate> templateRegistry;
 
     /**
      * This field holds the reference to the {@code ModuleTypeRegistry} providing the {@code ModuleType} automation
      * objects.
      */
-    protected ModuleTypeRegistry moduleTypeRegistry;
+    protected final ModuleTypeRegistry moduleTypeRegistry;
 
-    /**
-     * Activating this component - called from DS.
-     *
-     * @param componentContext
-     */
     @Activate
-    protected void activate(ComponentContext componentContext) {
-        super.initialize(componentContext.getBundleContext(), moduleTypeRegistry, templateRegistry, ruleRegistry);
+    public AutomationCommandsPluggable(ComponentContext componentContext, //
+            final @Reference RuleRegistry ruleRegistry, //
+            final @Reference ModuleTypeRegistry moduleTypeRegistry, //
+            final @Reference TemplateRegistry<RuleTemplate> templateRegistry, //
+            final @Reference RuleManager ruleManager) {
+        this.ruleRegistry = ruleRegistry;
+        this.moduleTypeRegistry = moduleTypeRegistry;
+        this.templateRegistry = templateRegistry;
+        this.ruleManager = ruleManager;
+
+        initialize(componentContext.getBundleContext(), moduleTypeRegistry, templateRegistry, ruleRegistry);
     }
 
-    /**
-     * Deactivating this component - called from DS.
-     */
     @Deactivate
     protected void deactivate(ComponentContext componentContext) {
         super.dispose();
     }
 
-    /**
-     * Bind the {@link RuleRegistry} service - called from DS.
-     *
-     * @param ruleRegistry ruleRegistry service.
-     */
-    @Reference
-    protected void setRuleRegistry(RuleRegistry ruleRegistry) {
-        this.ruleRegistry = ruleRegistry;
-    }
-
-    /**
-     * Bind the {@link ModuleTypeRegistry} service - called from DS.
-     *
-     * @param moduleTypeRegistry moduleTypeRegistry service.
-     */
-    @Reference
-    protected void setModuleTypeRegistry(ModuleTypeRegistry moduleTypeRegistry) {
-        this.moduleTypeRegistry = moduleTypeRegistry;
-    }
-
-    /**
-     * Bind the {@link TemplateRegistry} service - called from DS.
-     *
-     * @param templateRegistry templateRegistry service.
-     */
-    @Reference
-    protected void setTemplateRegistry(TemplateRegistry<RuleTemplate> templateRegistry) {
-        this.templateRegistry = templateRegistry;
-    }
-
-    /**
-     * Bind the {@link RuleManager} service - called from DS.
-     *
-     * @param ruleManager RuleManager service.
-     */
-    @Reference
-    protected void setRuleManager(RuleManager ruleManager) {
-        this.ruleManager = ruleManager;
-    }
-
-    protected void unsetRuleRegistry(RuleRegistry ruleRegistry) {
-        this.ruleRegistry = null;
-    }
-
-    protected void unsetModuleTypeRegistry(ModuleTypeRegistry moduleTypeRegistry) {
-        this.moduleTypeRegistry = null;
-    }
-
-    protected void unsetTemplateRegistry(TemplateRegistry<RuleTemplate> templateRegistry) {
-        this.templateRegistry = null;
-    }
-
-    protected void unsetRuleManager(RuleManager ruleManager) {
-        this.ruleManager = null;
-    }
-
     @Override
     public void execute(String[] args, Console console) {
         if (args.length == 0) {
-            console.println(StringUtils.join(getUsages(), "\n"));
+            console.println(getUsages().stream().collect(Collectors.joining("\n")));
             return;
         }
 
@@ -241,131 +189,104 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
     }
 
     @Override
-    public Rule getRule(String uid) {
-        if (ruleRegistry != null) {
-            return ruleRegistry.get(uid);
-        }
-        return null;
+    public @Nullable Rule getRule(String uid) {
+        return ruleRegistry.get(uid);
     }
 
     @Override
-    public RuleTemplate getTemplate(String templateUID, Locale locale) {
-        if (templateRegistry != null) {
-            return templateRegistry.get(templateUID, locale);
-        }
-        return null;
+    public @Nullable RuleTemplate getTemplate(String templateUID, @Nullable Locale locale) {
+        return templateRegistry.get(templateUID, locale);
     }
 
     @Override
-    public Collection<RuleTemplate> getTemplates(Locale locale) {
-        if (templateRegistry != null) {
-            return templateRegistry.getAll(locale);
-        }
-        return null;
+    public Collection<RuleTemplate> getTemplates(@Nullable Locale locale) {
+        return templateRegistry.getAll(locale);
     }
 
     @Override
-    public ModuleType getModuleType(String typeUID, Locale locale) {
-        if (moduleTypeRegistry != null) {
-            return moduleTypeRegistry.get(typeUID, locale);
-        }
-        return null;
+    public @Nullable ModuleType getModuleType(String typeUID, @Nullable Locale locale) {
+        return moduleTypeRegistry.get(typeUID, locale);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public Collection<TriggerType> getTriggers(Locale locale) {
-        if (moduleTypeRegistry != null) {
-            return moduleTypeRegistry.getTriggers(locale);
-        }
-        return null;
+    public Collection<TriggerType> getTriggers(@Nullable Locale locale) {
+        return moduleTypeRegistry.getTriggers(locale);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public Collection<ConditionType> getConditions(Locale locale) {
-        if (moduleTypeRegistry != null) {
-            return moduleTypeRegistry.getConditions(locale);
-        }
-        return null;
+    public Collection<ConditionType> getConditions(@Nullable Locale locale) {
+        return moduleTypeRegistry.getConditions(locale);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public Collection<ActionType> getActions(Locale locale) {
-        if (moduleTypeRegistry != null) {
-            return moduleTypeRegistry.getActions(locale);
-        }
-        return null;
+    public Collection<ActionType> getActions(@Nullable Locale locale) {
+        return moduleTypeRegistry.getActions(locale);
     }
 
     @Override
     public String removeRule(String uid) {
-        if (ruleRegistry != null) {
-            if (ruleRegistry.remove(uid) != null) {
-                return AutomationCommand.SUCCESS;
-            } else {
-                return String.format("Rule with id '%s' does not exist.", uid);
-            }
+        if (ruleRegistry.remove(uid) != null) {
+            return AutomationCommand.SUCCESS;
+        } else {
+            return String.format("Rule with id '%s' does not exist.", uid);
         }
-        return String.format("%s! RuleRegistry not available!", AutomationCommand.FAIL);
     }
 
     @Override
     public String removeRules(String ruleFilter) {
-        if (ruleRegistry != null) {
-            for (Rule r : ruleRegistry.getAll()) {
-                if (r.getUID().contains(ruleFilter)) {
-                    ruleRegistry.remove(r.getUID());
-                }
+        for (Rule r : ruleRegistry.getAll()) {
+            if (r.getUID().contains(ruleFilter)) {
+                ruleRegistry.remove(r.getUID());
             }
-            return AutomationCommand.SUCCESS;
         }
-        return String.format("%s! RuleRegistry not available!", AutomationCommand.FAIL);
+        return AutomationCommand.SUCCESS;
     }
 
     @Override
-    protected AutomationCommand parseCommand(String command, String[] params) {
-        if (command.equalsIgnoreCase(IMPORT_MODULE_TYPES)) {
+    protected @Nullable AutomationCommand parseCommand(String command, String[] params) {
+        if (IMPORT_MODULE_TYPES.equalsIgnoreCase(command)) {
             return new AutomationCommandImport(IMPORT_MODULE_TYPES, params, MODULE_TYPE_REGISTRY, this);
         }
-        if (command.equalsIgnoreCase(EXPORT_MODULE_TYPES)) {
+        if (EXPORT_MODULE_TYPES.equalsIgnoreCase(command)) {
             return new AutomationCommandExport(EXPORT_MODULE_TYPES, params, MODULE_TYPE_REGISTRY, this);
         }
-        if (command.equalsIgnoreCase(LIST_MODULE_TYPES)) {
+        if (LIST_MODULE_TYPES.equalsIgnoreCase(command)) {
             return new AutomationCommandList(LIST_MODULE_TYPES, params, MODULE_TYPE_REGISTRY, this);
         }
-        if (command.equalsIgnoreCase(IMPORT_TEMPLATES)) {
+        if (IMPORT_TEMPLATES.equalsIgnoreCase(command)) {
             return new AutomationCommandImport(IMPORT_TEMPLATES, params, TEMPLATE_REGISTRY, this);
         }
-        if (command.equalsIgnoreCase(EXPORT_TEMPLATES)) {
+        if (EXPORT_TEMPLATES.equalsIgnoreCase(command)) {
             return new AutomationCommandExport(EXPORT_TEMPLATES, params, TEMPLATE_REGISTRY, this);
         }
-        if (command.equalsIgnoreCase(LIST_TEMPLATES)) {
+        if (LIST_TEMPLATES.equalsIgnoreCase(command)) {
             return new AutomationCommandList(LIST_TEMPLATES, params, TEMPLATE_REGISTRY, this);
         }
-        if (command.equalsIgnoreCase(IMPORT_RULES)) {
+        if (IMPORT_RULES.equalsIgnoreCase(command)) {
             return new AutomationCommandImport(IMPORT_RULES, params, RULE_REGISTRY, this);
         }
-        if (command.equalsIgnoreCase(EXPORT_RULES)) {
+        if (EXPORT_RULES.equalsIgnoreCase(command)) {
             return new AutomationCommandExport(EXPORT_RULES, params, RULE_REGISTRY, this);
         }
-        if (command.equalsIgnoreCase(LIST_RULES)) {
+        if (LIST_RULES.equalsIgnoreCase(command)) {
             return new AutomationCommandList(LIST_RULES, params, RULE_REGISTRY, this);
         }
-        if (command.equalsIgnoreCase(REMOVE_TEMPLATES)) {
+        if (REMOVE_TEMPLATES.equalsIgnoreCase(command)) {
             return new AutomationCommandRemove(REMOVE_TEMPLATES, params, TEMPLATE_REGISTRY, this);
         }
-        if (command.equalsIgnoreCase(REMOVE_MODULE_TYPES)) {
+        if (REMOVE_MODULE_TYPES.equalsIgnoreCase(command)) {
             return new AutomationCommandRemove(REMOVE_MODULE_TYPES, params, MODULE_TYPE_REGISTRY, this);
         }
-        if (command.equalsIgnoreCase(REMOVE_RULE)) {
+        if (REMOVE_RULE.equalsIgnoreCase(command)) {
             return new AutomationCommandRemove(REMOVE_RULE, params, RULE_REGISTRY, this);
         }
-        if (command.equalsIgnoreCase(REMOVE_RULES)) {
+        if (REMOVE_RULES.equalsIgnoreCase(command)) {
             return new AutomationCommandRemove(REMOVE_RULES, params, RULE_REGISTRY, this);
         }
-        if (command.equalsIgnoreCase(ENABLE_RULE)) {
+        if (ENABLE_RULE.equalsIgnoreCase(command)) {
             return new AutomationCommandEnableRule(ENABLE_RULE, params, RULE_REGISTRY, this);
         }
         return null;
@@ -403,15 +324,11 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
 
     @Override
     public Collection<Rule> getRules() {
-        if (ruleRegistry != null) {
-            return ruleRegistry.getAll();
-        } else {
-            return null;
-        }
+        return ruleRegistry.getAll();
     }
 
     @Override
-    public RuleStatus getRuleStatus(String ruleUID) {
+    public @Nullable RuleStatus getRuleStatus(String ruleUID) {
         RuleStatusInfo rsi = ruleManager.getStatusInfo(ruleUID);
         return rsi != null ? rsi.getStatus() : null;
     }
@@ -420,5 +337,4 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
     public void setEnabled(String uid, boolean isEnabled) {
         ruleManager.setEnabled(uid, isEnabled);
     }
-
 }

@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -14,11 +14,11 @@ package org.openhab.core.automation;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
-import org.eclipse.smarthome.config.core.Configuration;
 import org.openhab.core.automation.type.Input;
 import org.openhab.core.automation.type.ModuleType;
 import org.openhab.core.automation.type.Output;
+import org.openhab.core.config.core.ConfigDescriptionParameter;
+import org.openhab.core.config.core.Configuration;
 
 /**
  * This interface represents automation {@code Modules} which are building components of the {@link Rule}s.
@@ -31,8 +31,8 @@ import org.openhab.core.automation.type.Output;
  * Setters of the module don't have immediate effect on the Rule. To apply the changes, the Module should be set on the
  * {@link Rule} and the Rule has to be updated in {@link RuleRegistry} by invoking {@code update} method.
  *
- * @author Yordan Mihaylov - Initial Contribution
- * @author Kai Kreuzer - Initial Contribution
+ * @author Yordan Mihaylov - Initial contribution
+ * @author Kai Kreuzer - Initial contribution
  */
 @NonNullByDefault
 public interface Module {
@@ -77,5 +77,4 @@ public interface Module {
      * @return the current configuration values of the {@link Module}.
      */
     Configuration getConfiguration();
-
 }

@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -18,12 +18,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.smarthome.core.common.registry.Provider;
 import org.openhab.core.automation.ManagedRuleProvider;
 import org.openhab.core.automation.Rule;
 import org.openhab.core.automation.parser.Parser;
 import org.openhab.core.automation.template.Template;
 import org.openhab.core.automation.type.ModuleType;
+import org.openhab.core.common.registry.Provider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -41,8 +41,7 @@ import org.osgi.util.tracker.BundleTrackerCustomizer;
  * This class is responsible for tracking the bundles - suppliers of automation resources. It implements
  * {@link BundleTrackerCustomizer} and is notified for events for adding, modifying or removing the bundles.
  *
- * @author Ana Dimova
- *
+ * @author Ana Dimova - Initial contribution
  */
 @SuppressWarnings("deprecation")
 @Component(immediate = true)
@@ -53,7 +52,7 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
      * {@link AbstractResourceBundleProvider}s of {@link ModuleType}s, {@link Template}s and {@link Rule}s.
      */
     @SuppressWarnings("rawtypes")
-    private final List<AutomationResourceBundlesEventQueue> providerEventsQueue = new ArrayList<AutomationResourceBundlesEventQueue>();
+    private final List<AutomationResourceBundlesEventQueue> providerEventsQueue = new ArrayList<>();
 
     /**
      * This field holds a reference to an importer of {@link Rule}s.
@@ -69,7 +68,7 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
      * This field serves for saving the BundleEvents for the bundles providing automation resources until their
      * processing completes. The events have been for adding, modifying or removing a bundle.
      */
-    private final List<BundleEvent> queue = new LinkedList<BundleEvent>();
+    private final List<BundleEvent> queue = new LinkedList<>();
 
     public AutomationResourceBundlesTracker() {
         rImporter = createImporter();
@@ -81,7 +80,7 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
 
     @Activate
     protected void activate(BundleContext bc) {
-        bTracker = new BundleTracker<Bundle>(bc, ~Bundle.UNINSTALLED, this);
+        bTracker = new BundleTracker<>(bc, ~Bundle.UNINSTALLED, this);
         bTracker.open();
     }
 
@@ -297,5 +296,4 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
     private boolean isAnAutomationProvider(Bundle bundle) {
         return bundle.getEntryPaths(AbstractResourceBundleProvider.ROOT_DIRECTORY) != null;
     }
-
 }

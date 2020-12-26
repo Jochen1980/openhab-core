@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -14,16 +14,19 @@ package org.openhab.core.automation.internal.provider;
 
 import java.util.StringTokenizer;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * This class is designed to serves as a holder of most significant information for a bundle that provides resources
  * for automation objects - bundle ID and bundle version. These two features of the bundle, define it uniquely and
  * determine if the bundle was updated, which needs to be checked after the system has been restarted.
  *
- * @author Ana Dimova - Initial Contribution
- *
+ * @author Ana Dimova - Initial contribution
  */
+@NonNullByDefault
 public class Vendor {
-    
+
     private static final String DELIMITER = ";";
 
     /**
@@ -46,7 +49,7 @@ public class Vendor {
      * This field keeps the count of the rules provided from this vendor.
      */
     private int rulesCount = 0;
-    
+
     public Vendor(String nameversion) {
         int index = nameversion.indexOf(DELIMITER);
         vendorSymbolicName = nameversion.substring(0, index);
@@ -116,7 +119,7 @@ public class Vendor {
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (obj instanceof Vendor) {
             Vendor other = (Vendor) obj;
             return vendorSymbolicName.equals(other.vendorSymbolicName) && vendorVersion.equals(other.vendorVersion);
@@ -131,7 +134,7 @@ public class Vendor {
     public int hashCode() {
         return vendorSymbolicName.hashCode() + vendorVersion.hashCode();
     }
-    
+
     /**
      * @see java.lang.Object#toString()
      */
@@ -148,5 +151,4 @@ public class Vendor {
         }
         return res;
     }
-
 }

@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -12,15 +12,14 @@
  */
 package org.openhab.core.automation.events;
 
-import org.eclipse.smarthome.core.events.AbstractEvent;
 import org.openhab.core.automation.RuleStatusInfo;
+import org.openhab.core.events.AbstractEvent;
 
 /**
  * An {@link RuleStatusInfoEvent} notifies subscribers that a rule status has been updated.
  *
- * @author Benedikt Niehues - initial contribution
+ * @author Benedikt Niehues - Initial contribution
  * @author Kai Kreuzer - added toString method
- *
  */
 public class RuleStatusInfoEvent extends AbstractEvent {
 
@@ -32,11 +31,11 @@ public class RuleStatusInfoEvent extends AbstractEvent {
     /**
      * constructs a new rule status event
      *
-     * @param topic      the topic of the event
-     * @param payload    the payload of the event
-     * @param source     the source of the event
+     * @param topic the topic of the event
+     * @param payload the payload of the event
+     * @param source the source of the event
      * @param statusInfo the status info for this event
-     * @param ruleId     the rule for which this event is
+     * @param ruleId the rule for which this event is
      */
     public RuleStatusInfoEvent(String topic, String payload, String source, RuleStatusInfo statusInfo, String ruleId) {
         super(topic, payload, source);
@@ -67,5 +66,4 @@ public class RuleStatusInfoEvent extends AbstractEvent {
     public String toString() {
         return ruleId + " updated: " + statusInfo.toString();
     }
-
 }

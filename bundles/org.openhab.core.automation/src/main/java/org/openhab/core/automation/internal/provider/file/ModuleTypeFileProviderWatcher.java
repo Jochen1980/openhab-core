@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -14,6 +14,7 @@ package org.openhab.core.automation.internal.provider.file;
 
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.core.automation.parser.Parser;
 import org.openhab.core.automation.type.ModuleType;
 import org.openhab.core.automation.type.ModuleTypeProvider;
@@ -25,9 +26,9 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 /**
  * This class is a wrapper of {@link ModuleTypeProvider}, responsible for initializing the WatchService.
  *
- * @author Ana Dimova - Initial Contribution
- *
+ * @author Ana Dimova - Initial contribution
  */
+@NonNullByDefault
 @Component(immediate = true, service = ModuleTypeProvider.class)
 public class ModuleTypeFileProviderWatcher extends ModuleTypeFileProvider {
 

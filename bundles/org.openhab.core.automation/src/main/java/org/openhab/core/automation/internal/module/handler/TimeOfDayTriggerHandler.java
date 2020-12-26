@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -14,13 +14,13 @@ package org.openhab.core.automation.internal.module.handler;
 
 import java.text.MessageFormat;
 
-import org.eclipse.smarthome.core.scheduler.CronScheduler;
-import org.eclipse.smarthome.core.scheduler.SchedulerRunnable;
 import org.openhab.core.automation.ModuleHandlerCallback;
 import org.openhab.core.automation.Trigger;
 import org.openhab.core.automation.handler.BaseTriggerModuleHandler;
 import org.openhab.core.automation.handler.TriggerHandlerCallback;
-import org.eclipse.smarthome.core.scheduler.ScheduledCompletableFuture;
+import org.openhab.core.scheduler.CronScheduler;
+import org.openhab.core.scheduler.ScheduledCompletableFuture;
+import org.openhab.core.scheduler.SchedulerRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,8 +28,7 @@ import org.slf4j.LoggerFactory;
  * This is an ModuleHandler implementation for Triggers which trigger the rule
  * at a specific time (format 'hh:mm').
  *
- * @author Kai Kreuzer - Initial Contribution
- *
+ * @author Kai Kreuzer - Initial contribution
  */
 public class TimeOfDayTriggerHandler extends BaseTriggerModuleHandler implements SchedulerRunnable {
 
@@ -38,7 +37,7 @@ public class TimeOfDayTriggerHandler extends BaseTriggerModuleHandler implements
     public static final String MODULE_TYPE_ID = "timer.TimeOfDayTrigger";
     public static final String MODULE_CONTEXT_NAME = "MODULE";
 
-    private static final String CFG_TIME = "time";
+    public static final String CFG_TIME = "time";
 
     private final CronScheduler scheduler;
     private final String expression;
@@ -50,7 +49,7 @@ public class TimeOfDayTriggerHandler extends BaseTriggerModuleHandler implements
         String time = module.getConfiguration().get(CFG_TIME).toString();
         try {
             String[] parts = time.split(":");
-            expression = MessageFormat.format("* {1} {0} * * *", Integer.parseInt(parts[0]),
+            expression = MessageFormat.format("0 {1} {0} * * *", Integer.parseInt(parts[0]),
                     Integer.parseInt(parts[1]));
         } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
             throw new IllegalArgumentException("'time' parameter '" + time + "' is not in valid format 'hh:mm'.", e);

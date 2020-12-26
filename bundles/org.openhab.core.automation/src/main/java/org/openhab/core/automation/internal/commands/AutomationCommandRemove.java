@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -27,10 +27,9 @@ import org.openhab.core.automation.Rule;
  * <li>{@link AutomationCommands#REMOVE_RULE}
  * </ul>
  *
- * @author Ana Dimova - Initial Contribution
+ * @author Ana Dimova - Initial contribution
  * @author Kai Kreuzer - fixed feedback when deleting non-existent rule
  * @author Marin Mitev - removed prefixes in the output
- *
  */
 public class AutomationCommandRemove extends AutomationCommand {
 
@@ -135,26 +134,26 @@ public class AutomationCommandRemove extends AutomationCommand {
         } else {
             getId = false;
         }
-        for (int i = 0; i < parameterValues.length; i++) {
-            if (null == parameterValues[i]) {
+        for (String parameterValue : parameterValues) {
+            if (null == parameterValue) {
                 continue;
             }
-            if (parameterValues[i].equals(OPTION_ST)) {
+            if (OPTION_ST.equals(parameterValue)) {
                 st = true;
-            } else if (parameterValues[i].charAt(0) == '-') {
-                return String.format("Unsupported option: %s", parameterValues[i]);
+            } else if (parameterValue.charAt(0) == '-') {
+                return String.format("Unsupported option: %s", parameterValue);
             } else if (getUrl) {
-                url = initURL(parameterValues[i]);
+                url = initURL(parameterValue);
                 if (url != null) {
                     getUrl = false;
                 }
             } else if (getId) {
-                id = parameterValues[i];
+                id = parameterValue;
                 if (id != null) {
                     getId = false;
                 }
             } else {
-                return String.format("Unsupported parameter: %s", parameterValues[i]);
+                return String.format("Unsupported parameter: %s", parameterValue);
             }
         }
         if (getUrl) {
@@ -165,5 +164,4 @@ public class AutomationCommandRemove extends AutomationCommand {
         }
         return SUCCESS;
     }
-
 }

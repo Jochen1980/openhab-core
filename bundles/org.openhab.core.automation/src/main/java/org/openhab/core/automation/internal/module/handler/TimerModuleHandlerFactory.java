@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -15,13 +15,13 @@ package org.openhab.core.automation.internal.module.handler;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.eclipse.smarthome.core.scheduler.CronScheduler;
 import org.openhab.core.automation.Condition;
 import org.openhab.core.automation.Module;
 import org.openhab.core.automation.Trigger;
 import org.openhab.core.automation.handler.BaseModuleHandlerFactory;
 import org.openhab.core.automation.handler.ModuleHandler;
 import org.openhab.core.automation.handler.ModuleHandlerFactory;
+import org.openhab.core.scheduler.CronScheduler;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
@@ -32,9 +32,8 @@ import org.slf4j.LoggerFactory;
  * This HandlerFactory creates TimerTriggerHandlers to control items within the
  * RuleManager.
  *
- * @author Christoph Knauf - initial contribution
+ * @author Christoph Knauf - Initial contribution
  * @author Kai Kreuzer - added new module types
- *
  */
 @Component(immediate = true, service = ModuleHandlerFactory.class)
 public class TimerModuleHandlerFactory extends BaseModuleHandlerFactory {

@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -24,13 +24,12 @@ import org.osgi.framework.Bundle;
 import org.osgi.service.packageadmin.PackageAdmin;
 
 /**
- * @author Ana Dimova
- *
+ * @author Ana Dimova - Initial contribution
  */
 @SuppressWarnings("deprecation")
 public class HostFragmentMappingUtil {
 
-    private static Map<Bundle, List<Bundle>> hostFragmentMapping = new HashMap<Bundle, List<Bundle>>();
+    private static Map<Bundle, List<Bundle>> hostFragmentMapping = new HashMap<>();
 
     static PackageAdmin pkgAdmin;
 
@@ -50,7 +49,7 @@ public class HostFragmentMappingUtil {
      * @return a list with the hosts of the <code>fragment</code> parameter.
      */
     static List<Bundle> returnHostBundles(Bundle fragment) {
-        List<Bundle> hosts = new ArrayList<Bundle>();
+        List<Bundle> hosts = new ArrayList<>();
         Bundle[] bundles = pkgAdmin.getHosts(fragment);
         if (bundles != null) {
             hosts = Arrays.asList(bundles);
@@ -65,7 +64,7 @@ public class HostFragmentMappingUtil {
     }
 
     static List<Bundle> fillHostFragmentMapping(Bundle host) {
-        List<Bundle> fragments = new ArrayList<Bundle>();
+        List<Bundle> fragments = new ArrayList<>();
         Bundle[] bundles = pkgAdmin.getFragments(host);
         if (bundles != null) {
             fragments = Arrays.asList(bundles);
@@ -104,5 +103,4 @@ public class HostFragmentMappingUtil {
         }
         return pkgAdmin.getBundleType(bundle) == PackageAdmin.BUNDLE_TYPE_FRAGMENT;
     }
-
 }

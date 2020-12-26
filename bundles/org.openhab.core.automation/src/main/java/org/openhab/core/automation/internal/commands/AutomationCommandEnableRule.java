@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -17,8 +17,7 @@ import org.openhab.core.automation.RuleStatus;
 /**
  * This class provides functionality of command {@link AutomationCommands#ENABLE_RULE}.
  *
- * @author Ana Dimova - Initial Contribution
- *
+ * @author Ana Dimova - Initial contribution
  */
 public class AutomationCommandEnableRule extends AutomationCommand {
 
@@ -61,29 +60,29 @@ public class AutomationCommandEnableRule extends AutomationCommand {
 
     @Override
     protected String parseOptionsAndParameters(String[] parameterValues) {
-        for (int i = 0; i < parameterValues.length; i++) {
-            if (null == parameterValues[i]) {
+        for (String parameterValue : parameterValues) {
+            if (null == parameterValue) {
                 continue;
             }
-            if (parameterValues[i].charAt(0) == '-') {
-                if (parameterValues[i].equals(OPTION_ST)) {
+            if (parameterValue.charAt(0) == '-') {
+                if (OPTION_ST.equals(parameterValue)) {
                     st = true;
                     continue;
                 }
-                return String.format("Unsupported option: %s", parameterValues[i]);
+                return String.format("Unsupported option: %s", parameterValue);
             }
             if (uid == null) {
-                uid = parameterValues[i];
+                uid = parameterValue;
                 continue;
             }
-            getEnable(parameterValues[i]);
+            getEnable(parameterValue);
             if (hasEnable) {
                 continue;
             }
             if (uid == null) {
                 return "Missing required parameter: Rule UID";
             }
-            return String.format("Unsupported parameter: %s", parameterValues[i]);
+            return String.format("Unsupported parameter: %s", parameterValue);
         }
         return SUCCESS;
     }
@@ -94,15 +93,14 @@ public class AutomationCommandEnableRule extends AutomationCommand {
      * @param parameterValue is the value entered from command line.
      */
     private void getEnable(String parameterValue) {
-        if (parameterValue.equals("true")) {
+        if ("true".equals(parameterValue)) {
             enable = true;
             hasEnable = true;
-        } else if (parameterValue.equals("false")) {
+        } else if ("false".equals(parameterValue)) {
             enable = false;
             hasEnable = true;
         } else {
             hasEnable = false;
         }
     }
-
 }

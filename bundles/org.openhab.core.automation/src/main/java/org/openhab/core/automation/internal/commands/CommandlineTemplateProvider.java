@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -24,7 +24,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.automation.parser.Parser;
 import org.openhab.core.automation.parser.ParsingException;
 import org.openhab.core.automation.parser.ParsingNestedException;
@@ -35,6 +36,7 @@ import org.openhab.core.automation.template.TemplateProvider;
 import org.openhab.core.automation.template.TemplateRegistry;
 import org.openhab.core.automation.type.ModuleType;
 import org.openhab.core.automation.type.ModuleTypeProvider;
+import org.openhab.core.common.registry.ProviderChangeListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
@@ -49,17 +51,17 @@ import org.osgi.framework.ServiceRegistration;
  * <li>removes the {@link RuleTemplate}s and their persistence
  * </ul>
  *
- * @author Ana Dimova - Initial Contribution
+ * @author Ana Dimova - Initial contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
- *
  */
+@NonNullByDefault
 public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTemplate> implements RuleTemplateProvider {
 
     /**
      * This field holds a reference to the {@link ModuleTypeProvider} service registration.
      */
     @SuppressWarnings("rawtypes")
-    protected ServiceRegistration tpReg;
+    protected @Nullable ServiceRegistration tpReg;
     private final TemplateRegistry<RuleTemplate> templateRegistry;
 
     /**
@@ -67,12 +69,11 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
      * any new functionality to the constructors of the providers. Only provides consistency by invoking the parent's
      * constructor.
      *
-     * @param context is the {@link BundleContext}, used for creating a tracker for {@link Parser} services.
+     * @param bundleContext is the {@link BundleContext}, used for creating a tracker for {@link Parser} services.
      */
-    public CommandlineTemplateProvider(BundleContext context, TemplateRegistry<RuleTemplate> templateRegistry) {
-        super(context);
-        listeners = new LinkedList<ProviderChangeListener<RuleTemplate>>();
-        tpReg = bc.registerService(RuleTemplateProvider.class.getName(), this, null);
+    public CommandlineTemplateProvider(BundleContext bundleContext, TemplateRegistry<RuleTemplate> templateRegistry) {
+        super(bundleContext);
+        tpReg = bundleContext.registerService(RuleTemplateProvider.class.getName(), this, null);
         this.templateRegistry = templateRegistry;
     }
 
@@ -83,8 +84,8 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
      * @see AbstractCommandProvider#addingService(org.osgi.framework.ServiceReference)
      */
     @Override
-    public Object addingService(@SuppressWarnings("rawtypes") ServiceReference reference) {
-        if (reference.getProperty(Parser.PARSER_TYPE).equals(Parser.PARSER_TEMPLATE)) {
+    public @Nullable Object addingService(@SuppressWarnings("rawtypes") @Nullable ServiceReference reference) {
+        if (reference != null && Parser.PARSER_TEMPLATE.equals(reference.getProperty(Parser.PARSER_TYPE))) {
             return super.addingService(reference);
         }
         return null;
@@ -129,14 +130,14 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
     }
 
     @Override
-    public RuleTemplate getTemplate(String UID, Locale locale) {
+    public @Nullable RuleTemplate getTemplate(String UID, @Nullable Locale locale) {
         synchronized (providerPortfolio) {
             return providedObjectsHolder.get(UID);
         }
     }
 
     @Override
-    public Collection<RuleTemplate> getTemplates(Locale locale) {
+    public Collection<RuleTemplate> getTemplates(@Nullable Locale locale) {
         synchronized (providedObjectsHolder) {
             return providedObjectsHolder.values();
         }
@@ -179,13 +180,13 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
             throws ParsingException {
         Set<RuleTemplate> providedObjects = parser.parse(inputStreamReader);
         if (providedObjects != null && !providedObjects.isEmpty()) {
-            List<String> portfolio = new ArrayList<String>();
+            List<String> portfolio = new ArrayList<>();
             synchronized (providerPortfolio) {
                 providerPortfolio.put(url, portfolio);
             }
-            List<ParsingNestedException> importDataExceptions = new ArrayList<ParsingNestedException>();
+            List<ParsingNestedException> importDataExceptions = new ArrayList<>();
             for (RuleTemplate ruleT : providedObjects) {
-                List<ParsingNestedException> exceptions = new ArrayList<ParsingNestedException>();
+                List<ParsingNestedException> exceptions = new ArrayList<>();
                 String uid = ruleT.getUID();
                 checkExistence(uid, exceptions);
                 if (exceptions.isEmpty()) {
@@ -226,7 +227,7 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
 
     @Override
     public Collection<RuleTemplate> getAll() {
-        return new LinkedList<RuleTemplate>(providedObjectsHolder.values());
+        return new LinkedList<>(providedObjectsHolder.values());
     }
 
     @Override
@@ -243,7 +244,7 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
         }
     }
 
-    protected void notifyListeners(RuleTemplate oldElement, RuleTemplate newElement) {
+    protected void notifyListeners(@Nullable RuleTemplate oldElement, RuleTemplate newElement) {
         synchronized (listeners) {
             for (ProviderChangeListener<RuleTemplate> listener : listeners) {
                 if (oldElement != null) {
@@ -254,7 +255,7 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
         }
     }
 
-    protected void notifyListeners(RuleTemplate removedObject) {
+    protected void notifyListeners(@Nullable RuleTemplate removedObject) {
         if (removedObject != null) {
             synchronized (listeners) {
                 for (ProviderChangeListener<RuleTemplate> listener : listeners) {
@@ -263,5 +264,4 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
             }
         }
     }
-
 }

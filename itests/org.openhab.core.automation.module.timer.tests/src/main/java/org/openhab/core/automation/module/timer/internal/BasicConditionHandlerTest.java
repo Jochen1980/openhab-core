@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -13,36 +13,19 @@
 package org.openhab.core.automation.module.timer.internal;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
-import org.eclipse.smarthome.core.events.Event;
-import org.eclipse.smarthome.core.events.EventFilter;
-import org.eclipse.smarthome.core.events.EventPublisher;
-import org.eclipse.smarthome.core.events.EventSubscriber;
-import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.items.ItemNotFoundException;
-import org.eclipse.smarthome.core.items.ItemProvider;
-import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
-import org.eclipse.smarthome.core.items.events.ItemEventFactory;
-import org.eclipse.smarthome.core.library.items.SwitchItem;
-import org.eclipse.smarthome.core.library.types.OnOffType;
-import org.eclipse.smarthome.test.java.JavaOSGiTest;
-import org.eclipse.smarthome.test.storage.VolatileStorageService;
-import org.junit.Before;
-import org.junit.Test;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openhab.core.automation.Action;
 import org.openhab.core.automation.Condition;
 import org.openhab.core.automation.Rule;
@@ -51,41 +34,59 @@ import org.openhab.core.automation.RuleRegistry;
 import org.openhab.core.automation.RuleStatus;
 import org.openhab.core.automation.RuleStatusInfo;
 import org.openhab.core.automation.Trigger;
+import org.openhab.core.automation.internal.RuleEngineImpl;
 import org.openhab.core.automation.internal.module.handler.ItemCommandActionHandler;
 import org.openhab.core.automation.internal.module.handler.ItemStateTriggerHandler;
 import org.openhab.core.automation.util.ModuleBuilder;
 import org.openhab.core.automation.util.RuleBuilder;
+import org.openhab.core.common.registry.ProviderChangeListener;
+import org.openhab.core.config.core.Configuration;
+import org.openhab.core.events.Event;
+import org.openhab.core.events.EventFilter;
+import org.openhab.core.events.EventPublisher;
+import org.openhab.core.events.EventSubscriber;
+import org.openhab.core.items.Item;
+import org.openhab.core.items.ItemNotFoundException;
+import org.openhab.core.items.ItemProvider;
+import org.openhab.core.items.ItemRegistry;
+import org.openhab.core.items.events.ItemCommandEvent;
+import org.openhab.core.items.events.ItemEventFactory;
+import org.openhab.core.library.items.SwitchItem;
+import org.openhab.core.library.types.OnOffType;
+import org.openhab.core.service.ReadyMarker;
+import org.openhab.core.test.java.JavaOSGiTest;
+import org.openhab.core.test.storage.VolatileStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This provides common functionality for all condition tests.
  *
- * @author Dominik Schlierf - extracting this base class from TimeOfDayConditionHandlerTest
- * @author Kai Kreuzer - initial contribution of TimeOfDayConditionHandlerTest
- *
+ * @author Dominik Schlierf - Initial contribution
+ * @author Kai Kreuzer - Initial contribution of TimeOfDayConditionHandlerTest
  */
 public abstract class BasicConditionHandlerTest extends JavaOSGiTest {
-    final Logger logger = LoggerFactory.getLogger(TimeOfDayConditionHandlerTest.class);
-    VolatileStorageService volatileStorageService = new VolatileStorageService();
-    RuleRegistry ruleRegistry;
-    RuleManager ruleEngine;
-    Event itemEvent = null;
+    private final Logger logger = LoggerFactory.getLogger(BasicConditionHandlerTest.class);
+    private VolatileStorageService volatileStorageService = new VolatileStorageService();
+    private RuleRegistry ruleRegistry;
+    private RuleManager ruleEngine;
+    private Event itemEvent = null;
 
     /**
      * This executes before every test and before the
      *
      * @Before-annotated methods in sub-classes.
      */
-    @Before
+    @BeforeEach
     public void beforeBase() {
+        @NonNullByDefault
         ItemProvider itemProvider = new ItemProvider() {
             @Override
-            public void addProviderChangeListener(@NonNull ProviderChangeListener<@NonNull Item> listener) {
+            public void addProviderChangeListener(ProviderChangeListener<Item> listener) {
             }
 
             @Override
-            public @NonNull Collection<@NonNull Item> getAll() {
+            public Collection<Item> getAll() {
                 List<Item> items = new ArrayList<>();
                 items.add(new SwitchItem("TriggeredItem"));
                 items.add(new SwitchItem("SwitchedItem"));
@@ -93,9 +94,8 @@ public abstract class BasicConditionHandlerTest extends JavaOSGiTest {
             }
 
             @Override
-            public void removeProviderChangeListener(@NonNull ProviderChangeListener<@NonNull Item> listener) {
+            public void removeProviderChangeListener(ProviderChangeListener<Item> listener) {
             }
-
         };
         registerService(itemProvider);
         registerService(volatileStorageService);
@@ -107,11 +107,13 @@ public abstract class BasicConditionHandlerTest extends JavaOSGiTest {
             ruleEngine = getService(RuleManager.class);
             assertThat(ruleEngine, is(notNullValue()));
         }, 3000, 100);
+
+        // start rule engine
+        ((RuleEngineImpl) getService(RuleManager.class)).onReadyMarkerAdded(new ReadyMarker("", ""));
     }
 
     @Test
     public void assertThatConditionWorksInRule() throws ItemNotFoundException {
-
         String testItemName1 = "TriggeredItem";
         String testItemName2 = "SwitchedItem";
 
@@ -123,27 +125,30 @@ public abstract class BasicConditionHandlerTest extends JavaOSGiTest {
          * Create Rule
          */
         logger.info("Create rule");
-        Configuration triggerConfig = new Configuration(Collections.singletonMap("itemName", testItemName1));
-        List<Trigger> triggers = Collections.singletonList(ModuleBuilder.createTrigger().withId("MyTrigger")
+        Configuration triggerConfig = new Configuration(Map.of("itemName", testItemName1));
+        List<Trigger> triggers = List.of(ModuleBuilder.createTrigger().withId("MyTrigger")
                 .withTypeUID(ItemStateTriggerHandler.UPDATE_MODULE_TYPE_ID).withConfiguration(triggerConfig).build());
 
-        List<Condition> conditions = Collections.singletonList(getPassingCondition());
+        List<Condition> conditions = List.of(getPassingCondition());
 
         Map<String, Object> cfgEntries = new HashMap<>();
         cfgEntries.put("itemName", testItemName2);
         cfgEntries.put("command", "ON");
         Configuration actionConfig = new Configuration(cfgEntries);
-        List<Action> actions = Collections.singletonList(ModuleBuilder.createAction().withId("MyItemPostCommandAction")
+        List<Action> actions = List.of(ModuleBuilder.createAction().withId("MyItemPostCommandAction")
                 .withTypeUID(ItemCommandActionHandler.ITEM_COMMAND_ACTION).withConfiguration(actionConfig).build());
 
         // prepare the execution
         EventPublisher eventPublisher = getService(EventPublisher.class);
 
+        // start rule engine
+        ((RuleEngineImpl) getService(RuleManager.class)).onReadyMarkerAdded(new ReadyMarker("", ""));
+
         EventSubscriber itemEventHandler = new EventSubscriber() {
 
             @Override
             public Set<String> getSubscribedEventTypes() {
-                return Collections.singleton(ItemCommandEvent.TYPE);
+                return Set.of(ItemCommandEvent.TYPE);
             }
 
             @Override

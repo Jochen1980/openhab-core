@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -15,10 +15,10 @@ package org.openhab.core.automation;
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.openhab.core.automation.type.ConditionType;
 import org.openhab.core.automation.type.Input;
 import org.openhab.core.automation.type.Output;
+import org.openhab.core.config.core.ConfigDescriptionParameter;
 
 /**
  * This interface represents automation {@code Condition} modules which are working as a filter for {@link Rule}'s
@@ -37,7 +37,7 @@ import org.openhab.core.automation.type.Output;
  * Condition modules are placed in <b>conditions</b> section of the {@link Rule} definition.
  *
  * @see Module
- * @author Yordan Mihaylov - Initial Contribution
+ * @author Yordan Mihaylov - Initial contribution
  */
 @NonNullByDefault
 public interface Condition extends Module {
@@ -49,5 +49,4 @@ public interface Condition extends Module {
      * @return a map that contains the input references of this condition.
      */
     Map<String, String> getInputs();
-
 }

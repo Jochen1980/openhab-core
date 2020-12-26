@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2019 Contributors to the openHAB project
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -45,7 +46,7 @@ import org.slf4j.LoggerFactory;
  * karaf.home rather than karaf.base, which means the service can only support a
  * single Karaf instance.
  *
- * @author Davy Vanherbergen
+ * @author Davy Vanherbergen - Initial contribution
  */
 @Command(scope = "openhab", name = "install-service", description = "Install openHAB as a system service.")
 @Service
@@ -69,7 +70,6 @@ public class InstallServiceCommand implements Action {
 
     @Override
     public Object execute() throws Exception {
-
         System.out.println("");
         System.out.println("Starting openHAB system service installation...");
         System.out.println("");
@@ -100,8 +100,13 @@ public class InstallServiceCommand implements Action {
         String karafBase = System.getProperty("karaf.base");
         String karafHome = System.getProperty("karaf.home");
 
-        // can we install to karaf.home?
-        if (!new File(karafHome).canWrite()) {
+        if (karafBase == null) {
+            System.out.println("System property karaf.base is not set. Install aborted.");
+            return null;
+        } else if (karafHome == null) {
+            System.out.println("System property karaf.home is not set. Install aborted.");
+            return null;
+        } else if (!new File(karafHome).canWrite()) {
             System.out.println("Cannot write to " + karafHome + ". Install aborted.");
             return null;
         }
@@ -224,7 +229,6 @@ public class InstallServiceCommand implements Action {
      *            wrapper service file
      */
     private void printPostInstallStepsRedHat(File serviceFile) {
-
         System.out.println(INTENSITY_BOLD + "RedHat/Fedora/CentOS Linux system detected (SystemV):" + INTENSITY_NORMAL);
         System.out.println("  To install the service:");
         System.out.println("    $ ln -s " + serviceFile.getPath() + " /etc/init.d/");
@@ -242,10 +246,9 @@ public class InstallServiceCommand implements Action {
         System.out.println("  To stop the service:");
         System.out.println("    $ service " + serviceFile.getName() + " stop");
         System.out.println("");
-        System.out.println("  To uninstall the service :");
+        System.out.println("  To uninstall the service:");
         System.out.println("    $ chkconfig " + serviceFile.getName() + " --del");
         System.out.println("    $ rm /etc/init.d/" + serviceFile.getPath());
-
     }
 
     /**
@@ -256,7 +259,6 @@ public class InstallServiceCommand implements Action {
      *            wrapper service file
      */
     private void printPostInstallStepsDebian(File serviceFile) {
-
         System.out.println(INTENSITY_BOLD + "Ubuntu/Debian Linux system detected (SystemV):" + INTENSITY_NORMAL);
         System.out.println("  To install the service:");
         System.out.println("    $ ln -s " + serviceFile.getPath() + " /etc/init.d/");
@@ -273,9 +275,8 @@ public class InstallServiceCommand implements Action {
         System.out.println("  To stop the service:");
         System.out.println("    $ /etc/init.d/" + serviceFile.getName() + " stop");
         System.out.println("");
-        System.out.println("  To uninstall the service :");
+        System.out.println("  To uninstall the service:");
         System.out.println("    $ rm /etc/init.d/" + serviceFile.getName());
-
     }
 
     /**
@@ -286,7 +287,6 @@ public class InstallServiceCommand implements Action {
      *            systemd file
      */
     private void printPostInstallStepsSystemd(File systemdFile) {
-
         System.out.println(INTENSITY_BOLD + "For systemd compliant Linux: " + INTENSITY_NORMAL);
         System.out.println("  To install the service (and enable at system boot):");
         System.out.println("   $ systemctl enable " + systemdFile.getPath());
@@ -305,7 +305,6 @@ public class InstallServiceCommand implements Action {
         System.out.println("");
         System.out.println("  To uninstall the service (and disable at system boot):");
         System.out.println("   $ systemctl disable " + SERVICE_NAME);
-
     }
 
     /**
@@ -316,7 +315,6 @@ public class InstallServiceCommand implements Action {
      *            wrapper service file
      */
     private void printPostInstallStepsWindows(File serviceFile) {
-
         System.out.println(INTENSITY_BOLD + "MS Windows system detected:" + INTENSITY_NORMAL);
         System.out.println("To install the service, run: ");
         System.out.println("  C:> " + serviceFile.getPath() + " install");
@@ -329,7 +327,6 @@ public class InstallServiceCommand implements Action {
         System.out.println("");
         System.out.println("Once stopped, to remove the installed the service run: ");
         System.out.println("  C:> " + serviceFile.getPath() + " remove");
-
     }
 
     /**
@@ -340,7 +337,6 @@ public class InstallServiceCommand implements Action {
      *            openHAB pList file
      */
     private void printPostInstallStepsOsX(File serviceFile) {
-
         System.out.println(INTENSITY_BOLD + "Mac OS X system detected:" + INTENSITY_NORMAL);
         System.out.println("");
         System.out.println("To configure openHAB as a " + INTENSITY_BOLD + "user service" + INTENSITY_NORMAL
@@ -363,7 +359,6 @@ public class InstallServiceCommand implements Action {
         System.out.println("");
         System.out.println("For removing the service call:");
         System.out.println("> launchctl remove openHAB");
-
     }
 
     /**
@@ -373,7 +368,6 @@ public class InstallServiceCommand implements Action {
      * @throws FileNotFoundException
      */
     private File createOpenHabPList() throws FileNotFoundException {
-
         // tweak plist file
         String plistPath = System.getProperty("karaf.home") + "/bin/";
         File karafPlist = new File(plistPath + "org.apache.karaf.openHAB.plist");
@@ -413,8 +407,8 @@ public class InstallServiceCommand implements Action {
         }
         try {
             is.close();
-        } catch (Throwable t) {
-            logger.error("Error closing inputstream", t);
+        } catch (IOException e) {
+            logger.error("Error closing inputstream", e);
         }
     }
 
@@ -430,8 +424,8 @@ public class InstallServiceCommand implements Action {
         }
         try {
             os.close();
-        } catch (Throwable t) {
-            logger.error("Error closing outputstream", t);
+        } catch (IOException e) {
+            logger.error("Error closing outputstream", e);
         }
     }
 }

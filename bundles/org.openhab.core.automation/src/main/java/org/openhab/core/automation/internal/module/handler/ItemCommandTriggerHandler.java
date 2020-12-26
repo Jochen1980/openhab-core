@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -12,21 +12,20 @@
  */
 package org.openhab.core.automation.internal.module.handler;
 
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.smarthome.core.events.Event;
-import org.eclipse.smarthome.core.events.EventFilter;
-import org.eclipse.smarthome.core.events.EventSubscriber;
-import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
-import org.eclipse.smarthome.core.types.Command;
 import org.openhab.core.automation.Trigger;
 import org.openhab.core.automation.handler.BaseTriggerModuleHandler;
 import org.openhab.core.automation.handler.TriggerHandlerCallback;
+import org.openhab.core.events.Event;
+import org.openhab.core.events.EventFilter;
+import org.openhab.core.events.EventSubscriber;
+import org.openhab.core.items.events.ItemCommandEvent;
+import org.openhab.core.types.Command;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
@@ -37,10 +36,14 @@ import org.slf4j.LoggerFactory;
  * if an item receives a command. The eventType and command value can be set with the
  * configuration.
  *
- * @author Kai Kreuzer - Initial contribution and API
- *
+ * @author Kai Kreuzer - Initial contribution
  */
 public class ItemCommandTriggerHandler extends BaseTriggerModuleHandler implements EventSubscriber, EventFilter {
+
+    public static final String MODULE_TYPE_ID = "core.ItemCommandTrigger";
+
+    public static final String CFG_ITEMNAME = "itemName";
+    public static final String CFG_COMMAND = "command";
 
     private final Logger logger = LoggerFactory.getLogger(ItemCommandTriggerHandler.class);
 
@@ -51,22 +54,16 @@ public class ItemCommandTriggerHandler extends BaseTriggerModuleHandler implemen
     private final Set<String> types;
     private final BundleContext bundleContext;
 
-    public static final String MODULE_TYPE_ID = "core.ItemCommandTrigger";
-
-    private static final String CFG_ITEMNAME = "itemName";
-    private static final String CFG_COMMAND = "command";
-
-    @SuppressWarnings("rawtypes")
-    private ServiceRegistration eventSubscriberRegistration;
+    private ServiceRegistration<?> eventSubscriberRegistration;
 
     public ItemCommandTriggerHandler(Trigger module, BundleContext bundleContext) {
         super(module);
         this.itemName = (String) module.getConfiguration().get(CFG_ITEMNAME);
         this.command = (String) module.getConfiguration().get(CFG_COMMAND);
-        this.types = Collections.singleton(ItemCommandEvent.TYPE);
+        this.types = Set.of(ItemCommandEvent.TYPE);
         this.bundleContext = bundleContext;
-        Dictionary<String, Object> properties = new Hashtable<String, Object>();
-        this.topic = "smarthome/items/" + itemName + "/command";
+        Dictionary<String, Object> properties = new Hashtable<>();
+        this.topic = "openhab/items/" + itemName + "/command";
         properties.put("event.topics", topic);
         eventSubscriberRegistration = this.bundleContext.registerService(EventSubscriber.class.getName(), this,
                 properties);
@@ -116,5 +113,4 @@ public class ItemCommandTriggerHandler extends BaseTriggerModuleHandler implemen
         logger.trace("->FILTER: {}:{}", event.getTopic(), itemName);
         return event.getTopic().equals(topic);
     }
-
 }

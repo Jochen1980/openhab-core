@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -12,8 +12,8 @@
  */
 package org.openhab.core.automation.module.script.internal.factory;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -36,8 +36,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This HandlerFactory creates ModuleHandlers for scripts.
  *
- * @author Kai Kreuzer
- *
+ * @author Kai Kreuzer - Initial contribution
  */
 @NonNullByDefault
 @Component(service = ModuleHandlerFactory.class)
@@ -45,10 +44,9 @@ public class ScriptModuleHandlerFactory extends BaseModuleHandlerFactory {
 
     private final Logger logger = LoggerFactory.getLogger(ScriptModuleHandlerFactory.class);
 
+    private static final Collection<String> TYPES = List.of(ScriptActionHandler.TYPE_ID,
+            ScriptConditionHandler.TYPE_ID);
     private @NonNullByDefault({}) ScriptEngineManager scriptEngineManager;
-
-    private static final Collection<String> TYPES = Arrays
-            .asList(new String[] { ScriptActionHandler.SCRIPT_ACTION_ID, ScriptConditionHandler.SCRIPT_CONDITION });
 
     @Override
     @Deactivate
@@ -61,6 +59,23 @@ public class ScriptModuleHandlerFactory extends BaseModuleHandlerFactory {
         return TYPES;
     }
 
+    @Override
+    protected @Nullable ModuleHandler internalCreate(Module module, String ruleUID) {
+        logger.trace("create {} -> {}", module.getId(), module.getTypeUID());
+        String moduleTypeUID = module.getTypeUID();
+        if (ScriptConditionHandler.TYPE_ID.equals(moduleTypeUID) && module instanceof Condition) {
+            ScriptConditionHandler handler = new ScriptConditionHandler((Condition) module, ruleUID,
+                    scriptEngineManager);
+            return handler;
+        } else if (ScriptActionHandler.TYPE_ID.equals(moduleTypeUID) && module instanceof Action) {
+            ScriptActionHandler handler = new ScriptActionHandler((Action) module, ruleUID, scriptEngineManager);
+            return handler;
+        } else {
+            logger.error("The ModuleHandler is not supported: {}", moduleTypeUID);
+            return null;
+        }
+    }
+
     @Reference(policy = ReferencePolicy.DYNAMIC)
     public void setScriptEngineManager(ScriptEngineManager scriptEngineManager) {
         this.scriptEngineManager = scriptEngineManager;
@@ -69,26 +84,4 @@ public class ScriptModuleHandlerFactory extends BaseModuleHandlerFactory {
     public void unsetScriptEngineManager(ScriptEngineManager scriptEngineManager) {
         this.scriptEngineManager = null;
     }
-
-    @Override
-    protected @Nullable ModuleHandler internalCreate(Module module, String ruleUID) {
-        logger.trace("create {} -> {}", module.getId(), module.getTypeUID());
-        String moduleTypeUID = module.getTypeUID();
-        if (moduleTypeUID != null) {
-            if (ScriptConditionHandler.SCRIPT_CONDITION.equals(moduleTypeUID) && module instanceof Condition) {
-                ScriptConditionHandler handler = new ScriptConditionHandler((Condition) module, ruleUID,
-                        scriptEngineManager);
-                return handler;
-            } else if (ScriptActionHandler.SCRIPT_ACTION_ID.equals(moduleTypeUID) && module instanceof Action) {
-                ScriptActionHandler handler = new ScriptActionHandler((Action) module, ruleUID, scriptEngineManager);
-                return handler;
-            } else {
-                logger.error("The ModuleHandler is not supported: {}", moduleTypeUID);
-            }
-        } else {
-            logger.error("ModuleType is not registered: {}", moduleTypeUID);
-        }
-        return null;
-    }
-
 }

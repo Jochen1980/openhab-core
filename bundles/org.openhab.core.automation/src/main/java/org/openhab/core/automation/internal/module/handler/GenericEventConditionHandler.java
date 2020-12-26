@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -14,22 +14,19 @@ package org.openhab.core.automation.internal.module.handler;
 
 import java.util.Map;
 
-import org.eclipse.smarthome.core.events.Event;
 import org.openhab.core.automation.Condition;
-import org.openhab.core.automation.handler.BaseModuleHandler;
-import org.openhab.core.automation.handler.ConditionHandler;
+import org.openhab.core.automation.handler.BaseConditionModuleHandler;
+import org.openhab.core.events.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This is the implementation of a event condition which checks if inputs matches configured values.
  *
- * @author Benedikt Niehues - Initial contribution and API
+ * @author Benedikt Niehues - Initial contribution
  * @author Kai Kreuzer - refactored and simplified customized module handling
- *
  */
-public class GenericEventConditionHandler extends BaseModuleHandler<Condition> implements ConditionHandler {
-    public final Logger logger = LoggerFactory.getLogger(GenericEventConditionHandler.class);
+public class GenericEventConditionHandler extends BaseConditionModuleHandler {
 
     public static final String MODULETYPE_ID = "core.GenericEventCondition";
 
@@ -37,6 +34,8 @@ public class GenericEventConditionHandler extends BaseModuleHandler<Condition> i
     private static final String EVENTTYPE = "eventType";
     private static final String SOURCE = "source";
     private static final String PAYLOAD = "payload";
+
+    public final Logger logger = LoggerFactory.getLogger(GenericEventConditionHandler.class);
 
     public GenericEventConditionHandler(Condition module) {
         super(module);
@@ -46,7 +45,7 @@ public class GenericEventConditionHandler extends BaseModuleHandler<Condition> i
         Object mo = module.getConfiguration().get(keyParam);
         String configValue = mo != null && mo instanceof String ? (String) mo : null;
         if (configValue != null) {
-            if (keyParam.equals(PAYLOAD)) {
+            if (PAYLOAD.equals(keyParam)) {
                 // automatically adding wildcards only for payload matching
                 configValue = configValue.startsWith("*") ? configValue : ".*" + configValue;
                 configValue = configValue.endsWith("*") ? configValue : configValue + ".*";
@@ -70,7 +69,5 @@ public class GenericEventConditionHandler extends BaseModuleHandler<Condition> i
                     && isConfiguredAndMatches(EVENTTYPE, event.getType());
         }
         return false;
-
     }
-
 }

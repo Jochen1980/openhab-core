@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -22,8 +22,7 @@ import java.util.function.Predicate;
 /**
  * This class add support for prefixes for {@link Rule} UIDs and provide default predicates for prefixes and tags.
  *
- * @author Victor Toni - initial contribution
- *
+ * @author Victor Toni - Initial contribution
  */
 public class RulePredicates {
 
@@ -88,7 +87,7 @@ public class RulePredicates {
             namespaceSet.add(namespace);
         }
 
-        // this will even work for null namepace
+        // this will even work for null namespace
         return r -> namespaceSet.contains(getPrefix(r));
     }
 
@@ -101,7 +100,7 @@ public class RulePredicates {
     public static Predicate<Rule> hasTags() {
         // everything with a tag is matching
         // Rule.getTags() is never null
-        return r -> 0 < r.getTags().size();
+        return r -> !r.getTags().isEmpty();
     }
 
     /**
@@ -180,5 +179,4 @@ public class RulePredicates {
             return hasAnyOfTags(Arrays.asList(tags));
         }
     }
-
 }

@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.automation.Module;
@@ -28,13 +27,13 @@ import org.openhab.core.automation.Rule;
  * {@link #internalCreate(Module, String)} method for creating concrete instances needed for the operation of the
  * {@link Module}s.
  *
- * @author Kai Kreuzer - Initial Contribution
+ * @author Kai Kreuzer - Initial contribution
  * @author Benedikt Niehues - change behavior for unregistering ModuleHandler
  */
 @NonNullByDefault
 public abstract class BaseModuleHandlerFactory implements ModuleHandlerFactory {
 
-    private final Map<@NonNull String, @NonNull ModuleHandler> handlers = new HashMap<>();
+    private final Map<String, ModuleHandler> handlers = new HashMap<>();
 
     /**
      * Should be overridden by the implementations that extend this base class. Called from DS to deactivate the
@@ -73,7 +72,7 @@ public abstract class BaseModuleHandlerFactory implements ModuleHandlerFactory {
     /**
      * Creates a new {@link ModuleHandler} for a given {@code module} and {@code ruleUID}.
      *
-     * @param module  the {@link Module} for which a handler should be created.
+     * @param module the {@link Module} for which a handler should be created.
      * @param ruleUID the identifier of the {@link Rule} that the given module belongs to.
      * @return a {@link ModuleHandler} instance or {@code null} if thins module type is not supported.
      */

@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -18,16 +18,15 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openhab.core.automation.Action;
-import org.openhab.core.automation.handler.ActionHandler;
-import org.openhab.core.automation.handler.BaseModuleHandler;
+import org.openhab.core.automation.handler.BaseActionModuleHandler;
 import org.openhab.core.automation.module.script.rulesupport.shared.simple.SimpleActionHandler;
 
 /**
  * The SimpleActionHandlerDelegate allows the registration of {@link SimpleActionHandler}s to the RuleManager.
  *
- * @author Simon Merschjohann
+ * @author Simon Merschjohann - Initial contribution
  */
-public class SimpleActionHandlerDelegate extends BaseModuleHandler<Action> implements ActionHandler {
+public class SimpleActionHandlerDelegate extends BaseActionModuleHandler {
 
     private org.openhab.core.automation.module.script.rulesupport.shared.simple.SimpleActionHandler actionHandler;
 
@@ -43,7 +42,7 @@ public class SimpleActionHandlerDelegate extends BaseModuleHandler<Action> imple
 
     @Override
     public Map<String, Object> execute(Map<String, Object> inputs) {
-        Set<String> keys = new HashSet<String>(inputs.keySet());
+        Set<String> keys = new HashSet<>(inputs.keySet());
 
         Map<String, Object> extendedInputs = new HashMap<>(inputs);
         for (String key : keys) {
@@ -58,7 +57,7 @@ public class SimpleActionHandlerDelegate extends BaseModuleHandler<Action> imple
         }
 
         Object result = actionHandler.execute(module, extendedInputs);
-        HashMap<String, Object> resultMap = new HashMap<String, Object>();
+        Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("result", result);
         return resultMap;
     }

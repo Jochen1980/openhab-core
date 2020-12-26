@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -16,16 +16,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTOMapper;
-import org.openhab.core.automation.dto.ActionTypeDTO;
-import org.openhab.core.automation.dto.CompositeActionTypeDTO;
 import org.openhab.core.automation.type.ActionType;
 import org.openhab.core.automation.type.CompositeActionType;
+import org.openhab.core.config.core.dto.ConfigDescriptionDTOMapper;
 
 /**
  * This is a utility class to convert between the respective object and its DTO.
  *
- * @author Markus Rathgeb - Initial contribution and API
+ * @author Markus Rathgeb - Initial contribution
  * @author Ana Dimova - extends Action Module type DTOs with composites
  */
 public class ActionTypeDTOMapper extends ModuleTypeDTOMapper {
@@ -57,7 +55,7 @@ public class ActionTypeDTOMapper extends ModuleTypeDTOMapper {
         if (types == null) {
             return null;
         }
-        final List<ActionTypeDTO> dtos = new ArrayList<ActionTypeDTO>(types.size());
+        final List<ActionTypeDTO> dtos = new ArrayList<>(types.size());
         for (final ActionType type : types) {
             if (type instanceof CompositeActionType) {
                 dtos.add(map((CompositeActionType) type));
@@ -74,5 +72,4 @@ public class ActionTypeDTOMapper extends ModuleTypeDTOMapper {
         actionTypeDto.outputs = actionType.getOutputs();
         return actionTypeDto;
     }
-
 }

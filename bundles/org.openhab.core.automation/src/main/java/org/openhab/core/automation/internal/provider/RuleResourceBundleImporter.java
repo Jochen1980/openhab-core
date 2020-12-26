@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -20,6 +20,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.automation.ManagedRuleProvider;
 import org.openhab.core.automation.Rule;
 import org.openhab.core.automation.parser.Parser;
@@ -37,16 +39,16 @@ import org.osgi.framework.Bundle;
  * <li>tracking the managing service of the {@link Rule}s.
  * </ul>
  *
- * @author Ana Dimova - Initial Contribution
+ * @author Ana Dimova - Initial contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
- *
  */
+@NonNullByDefault
 public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<Rule> {
 
     /**
      * This field holds the reference to the Rule Registry.
      */
-    protected ManagedRuleProvider mProvider;
+    protected @Nullable ManagedRuleProvider mProvider;
 
     /**
      * This constructor is responsible for initializing the path to resources and tracking the managing service of the
@@ -55,7 +57,7 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
      * @param registry the managing service of the {@link Rule}s.
      */
     public RuleResourceBundleImporter() {
-        path = ROOT_DIRECTORY + "/rules/";
+        super(ROOT_DIRECTORY + "/rules/");
     }
 
     protected void setManagedRuleProvider(ManagedRuleProvider mProvider) {
@@ -84,8 +86,12 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
      */
     @Override
     protected void processAutomationProvider(Bundle bundle) {
-        Vendor vendor = new Vendor(bundle.getSymbolicName(), bundle.getVersion().toString());
-        logger.debug("Parse rules from bundle '{}' ", bundle.getSymbolicName());
+        String bsn = bundle.getSymbolicName();
+        if (bsn == null) {
+            bsn = String.format("@bundleId@0x%x", bundle.getBundleId());
+        }
+        Vendor vendor = new Vendor(bsn, bundle.getVersion().toString());
+        logger.debug("Parse rules from bundle '{}' ", bsn);
         Enumeration<URL> urlEnum = null;
         try {
             if (bundle.getState() != Bundle.UNINSTALLED) {
@@ -99,7 +105,7 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
         if (urlEnum != null) {
             while (urlEnum.hasMoreElements()) {
                 URL url = urlEnum.nextElement();
-                if (getPreviousPortfolio(vendor) != null
+                if (!getPreviousPortfolio(vendor).isEmpty()
                         && (waitingProviders.get(bundle) == null || !waitingProviders.get(bundle).contains(url))) {
                     return;
                 }
@@ -111,12 +117,12 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
                 updateWaitingProviders(parser, bundle, url);
                 if (parser != null) {
                     Set<Rule> parsedObjects = parseData(parser, url, bundle);
-                    if (parsedObjects != null && !parsedObjects.isEmpty()) {
-                        addNewProvidedObjects(null, null, parsedObjects);
+                    if (!parsedObjects.isEmpty()) {
+                        addNewProvidedObjects(Collections.emptyList(), Collections.emptyList(), parsedObjects);
                     }
                 }
             }
-            putNewPortfolio(vendor, Collections.<String> emptyList());
+            putNewPortfolio(vendor, Collections.emptyList());
         }
     }
 
@@ -145,16 +151,21 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
         if (portfolio == null) {
             for (Vendor v : providerPortfolio.keySet()) {
                 if (v.getVendorSymbolicName().equals(vendor.getVendorSymbolicName())) {
-                    return providerPortfolio.get(v);
+                    List<String> vendorPortfolio = providerPortfolio.get(v);
+                    return vendorPortfolio == null ? List.of() : vendorPortfolio;
                 }
             }
         }
-        return portfolio;
+        return portfolio == null ? List.of() : portfolio;
     }
 
     @Override
     protected void processAutomationProviderUninstalled(Bundle bundle) {
-        Vendor vendor = new Vendor(bundle.getSymbolicName(), bundle.getVersion().toString());
+        String bsn = bundle.getSymbolicName();
+        if (bsn == null) {
+            bsn = String.format("@bundleId@0x%x", bundle.getBundleId());
+        }
+        Vendor vendor = new Vendor(bsn, bundle.getVersion().toString());
         waitingProviders.remove(bundle);
         providerPortfolio.remove(vendor);
     }

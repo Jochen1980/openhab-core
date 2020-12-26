@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -16,7 +16,7 @@ import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
+import org.openhab.core.common.registry.RegistryChangeListener;
 
 /**
  * This class is responsible to provide a {@link RegistryChangeListener} logic. A instance of it is added to
@@ -24,8 +24,7 @@ import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
  * disabled or removed and to involve Rule Engine to process these changes. Also to send a {@code run} command
  * for a single {@link Rule} to the Rule Engine.
  *
- * @author Kai Kreuzer - Initial contribution and API
- *
+ * @author Kai Kreuzer - Initial contribution
  */
 @NonNullByDefault
 public interface RuleManager {
@@ -93,5 +92,4 @@ public interface RuleManager {
      * @param context the context that is passed to the conditions and the actions of the rule.
      */
     void runNow(String uid, boolean considerConditions, @Nullable Map<String, Object> context);
-
 }

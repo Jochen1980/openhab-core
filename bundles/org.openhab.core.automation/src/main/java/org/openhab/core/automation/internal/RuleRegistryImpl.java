@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -23,14 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
-import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
-import org.eclipse.smarthome.core.common.registry.Provider;
-import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
-import org.eclipse.smarthome.core.events.EventPublisher;
-import org.eclipse.smarthome.core.storage.StorageService;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.automation.ManagedRuleProvider;
 import org.openhab.core.automation.Module;
 import org.openhab.core.automation.Rule;
@@ -45,11 +39,19 @@ import org.openhab.core.automation.type.ModuleTypeRegistry;
 import org.openhab.core.automation.util.ConfigurationNormalizer;
 import org.openhab.core.automation.util.ReferenceResolver;
 import org.openhab.core.automation.util.RuleBuilder;
+import org.openhab.core.common.registry.AbstractRegistry;
+import org.openhab.core.common.registry.Provider;
+import org.openhab.core.common.registry.RegistryChangeListener;
+import org.openhab.core.config.core.ConfigDescriptionParameter;
+import org.openhab.core.config.core.ConfigDescriptionParameter.Type;
+import org.openhab.core.config.core.Configuration;
+import org.openhab.core.events.EventPublisher;
+import org.openhab.core.service.ReadyService;
+import org.openhab.core.storage.StorageService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -94,41 +96,28 @@ import org.slf4j.LoggerFactory;
  * {@link RuleStatus#DISABLED}.</li>
  * </ul>
  *
- * @author Yordan Mihaylov - Initial Contribution
+ * @author Yordan Mihaylov - Initial contribution
  * @author Ana Dimova - Persistence implementation & updating rules from providers
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation and other fixes
  * @author Benedikt Niehues - added events for rules
  * @author Victor Toni - return only copies of {@link Rule}s
  */
-@Component(service = RuleRegistry.class, immediate = true, property = { "rule.reinitialization.delay:Long=500" })
+@NonNullByDefault
+@Component(service = RuleRegistry.class, immediate = true)
 public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvider>
         implements RuleRegistry, RegistryChangeListener<RuleTemplate> {
-
-    /**
-     * Default value of delay between rule's re-initialization tries.
-     */
-    private static final long DEFAULT_REINITIALIZATION_DELAY = 500;
-
-    /**
-     * Delay between rule's re-initialization tries.
-     */
-    private static final String CONFIG_PROPERTY_REINITIALIZATION_DELAY = "rule.reinitialization.delay";
 
     private static final String SOURCE = RuleRegistryImpl.class.getSimpleName();
 
     private final Logger logger = LoggerFactory.getLogger(RuleRegistryImpl.class.getName());
 
-    /**
-     * Delay between rule's re-initialization tries.
-     */
-    private long scheduleReinitializationDelay;
-    private ModuleTypeRegistry moduleTypeRegistry;
-    private RuleTemplateRegistry templateRegistry;
+    private @NonNullByDefault({}) ModuleTypeRegistry moduleTypeRegistry;
+    private @NonNullByDefault({}) RuleTemplateRegistry templateRegistry;
 
     /**
      * {@link Map} of template UIDs to rules where these templates participated.
      */
-    private final Map<String, Set<String>> mapTemplateToRules = new HashMap<String, Set<String>>();
+    private final Map<String, Set<String>> mapTemplateToRules = new HashMap<>();
 
     /**
      * Constructor that is responsible to invoke the super constructor with appropriate providerClazz
@@ -143,25 +132,10 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      *
      * @param componentContext this component context.
      */
+    @Override
     @Activate
-    protected void activate(BundleContext bundleContext, Map<String, Object> properties) throws Exception {
-        modified(properties);
+    protected void activate(BundleContext bundleContext) {
         super.activate(bundleContext);
-    }
-
-    /**
-     * This method is responsible for updating the value of delay between rule's re-initialization tries.
-     *
-     * @param config a {@link Map} containing the new value of delay.
-     */
-    @Modified
-    protected void modified(Map<String, Object> config) {
-        Object value = config == null ? null : config.get(CONFIG_PROPERTY_REINITIALIZATION_DELAY);
-        this.scheduleReinitializationDelay = (value != null && value instanceof Number) ? (((Number) value).longValue())
-                : DEFAULT_REINITIALIZATION_DELAY;
-        if (value != null && !(value instanceof Number)) {
-            logger.warn("Invalid configuration value: {}. It MUST be Number.", value);
-        }
     }
 
     @Override
@@ -179,6 +153,17 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     @Override
     protected void unsetEventPublisher(EventPublisher eventPublisher) {
         super.unsetEventPublisher(eventPublisher);
+    }
+
+    @Override
+    @Reference
+    protected void setReadyService(ReadyService readyService) {
+        super.setReadyService(readyService);
+    }
+
+    @Override
+    protected void unsetReadyService(ReadyService readyService) {
+        super.unsetReadyService(readyService);
     }
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, name = "ManagedRuleProvider")
@@ -243,12 +228,12 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      * @param rule a {@link Rule} instance which have to be added into the {@link RuleEngineImpl}.
      * @return a copy of the added {@link Rule}
      * @throws RuntimeException
-     *                                  when passed module has a required configuration property and it is not specified
-     *                                  in rule definition
-     *                                  nor
-     *                                  in the module's module type definition.
+     *             when passed module has a required configuration property and it is not specified
+     *             in rule definition
+     *             nor
+     *             in the module's module type definition.
      * @throws IllegalArgumentException
-     *                                  when a module id contains dot or when the rule with the same UID already exists.
+     *             when a module id contains dot or when the rule with the same UID already exists.
      */
     @Override
     public Rule add(Rule rule) {
@@ -274,21 +259,21 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     }
 
     /**
-     * @see RuleRegistryImpl#postEvent(org.eclipse.smarthome.core.events.Event)
+     * @see RuleRegistryImpl#postEvent(org.openhab.core.events.Event)
      */
     protected void postRuleAddedEvent(Rule rule) {
         postEvent(RuleEventFactory.createRuleAddedEvent(rule, SOURCE));
     }
 
     /**
-     * @see RuleRegistryImpl#postEvent(org.eclipse.smarthome.core.events.Event)
+     * @see RuleRegistryImpl#postEvent(org.openhab.core.events.Event)
      */
     protected void postRuleRemovedEvent(Rule rule) {
         postEvent(RuleEventFactory.createRuleRemovedEvent(rule, SOURCE));
     }
 
     /**
-     * @see RuleRegistryImpl#postEvent(org.eclipse.smarthome.core.events.Event)
+     * @see RuleRegistryImpl#postEvent(org.openhab.core.events.Event)
      */
     protected void postRuleUpdatedEvent(Rule rule, Rule oldRule) {
         postEvent(RuleEventFactory.createRuleUpdatedEvent(rule, oldRule, SOURCE));
@@ -298,7 +283,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      * This method can be used in order to post events through the openHAB events bus. A common
      * use case is to notify event subscribers about the {@link Rule}'s status change.
      *
-     * @param ruleUID    the UID of the {@link Rule}, whose status is changed.
+     * @param ruleUID the UID of the {@link Rule}, whose status is changed.
      * @param statusInfo the new {@link Rule}s status.
      */
     protected void postRuleStatusInfoEvent(String ruleUID, RuleStatusInfo statusInfo) {
@@ -321,8 +306,8 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     }
 
     @Override
-    public Collection<Rule> getByTag(String tag) {
-        Collection<Rule> result = new LinkedList<Rule>();
+    public Collection<Rule> getByTag(@Nullable String tag) {
+        Collection<Rule> result = new LinkedList<>();
         if (tag == null) {
             forEach(result::add);
         } else {
@@ -337,9 +322,9 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
 
     @Override
     public Collection<Rule> getByTags(String... tags) {
-        Set<String> tagSet = tags != null ? new HashSet<String>(Arrays.asList(tags)) : null;
-        Collection<Rule> result = new LinkedList<Rule>();
-        if (tagSet == null || tagSet.isEmpty()) {
+        Set<String> tagSet = new HashSet<>(Arrays.asList(tags));
+        Collection<Rule> result = new LinkedList<>();
+        if (tagSet.isEmpty()) {
             forEach(result::add);
         } else {
             forEach(rule -> {
@@ -386,15 +371,15 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      * Updates the content of the {@link Map} that maps the template to rules, using it to complete their definitions.
      *
      * @param templateUID the {@link RuleTemplate}'s UID specifying the template.
-     * @param ruleUID     the {@link Rule}'s UID specifying a rule created by the specified template.
-     * @param resolved    specifies if the {@link Map} should be updated by adding or removing the specified rule
-     *                    accordingly if the rule is resolved or not.
+     * @param ruleUID the {@link Rule}'s UID specifying a rule created by the specified template.
+     * @param resolved specifies if the {@link Map} should be updated by adding or removing the specified rule
+     *            accordingly if the rule is resolved or not.
      */
     private void updateRuleTemplateMapping(String templateUID, String ruleUID, boolean resolved) {
         synchronized (this) {
             Set<String> ruleUIDs = mapTemplateToRules.get(templateUID);
             if (ruleUIDs == null) {
-                ruleUIDs = new HashSet<String>();
+                ruleUIDs = new HashSet<>();
                 mapTemplateToRules.put(templateUID, ruleUIDs);
             }
             if (resolved) {
@@ -484,7 +469,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      * This method serves to resolve and normalize the {@link Rule}s configuration values and its module configurations.
      *
      * @param rule the {@link Rule}, whose configuration values and module configuration values should be resolved and
-     *             normalized.
+     *            normalized.
      */
     private void resolveConfigurations(Rule rule) {
         List<ConfigDescriptionParameter> configDescriptions = rule.getConfigurationDescriptions();
@@ -565,10 +550,10 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     /**
      * Utility method for {@link Rule}s configuration validation. Validates the value of a configuration property.
      *
-     * @param configValue     the value for {@link Rule}s configuration property, that should be validated.
+     * @param configValue the value for {@link Rule}s configuration property, that should be validated.
      * @param configParameter the meta-data for {@link Rule}s configuration value, used for validation.
      */
-    private void processValue(Object configValue, ConfigDescriptionParameter configParameter) {
+    private void processValue(@Nullable Object configValue, ConfigDescriptionParameter configParameter) {
         if (configValue != null) {
             Type type = configParameter.getType();
             if (configParameter.isMultiple()) {
@@ -599,7 +584,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     /**
      * Avoid code duplication in {@link #processValue(Object, ConfigDescriptionParameter)} method.
      *
-     * @param type        the {@link Type} of a parameter that should be checked.
+     * @param type the {@link Type} of a parameter that should be checked.
      * @param configValue the value of a parameter that should be checked.
      * @return <code>true</code> if the type and value matching or <code>false</code> in the opposite.
      */
@@ -621,9 +606,9 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     /**
      * This method serves to replace module configuration references with the {@link Rule}s configuration values.
      *
-     * @param modules           the {@link Rule}'s modules, whose configuration values should be resolved.
+     * @param modules the {@link Rule}'s modules, whose configuration values should be resolved.
      * @param ruleConfiguration the {@link Rule}'s configuration values that should be resolve module configuration
-     *                          values.
+     *            values.
      */
     private void resolveModuleConfigReferences(List<? extends Module> modules, Map<String, ?> ruleConfiguration) {
         if (modules != null) {
@@ -645,7 +630,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     @Override
     public void added(RuleTemplate element) {
         String templateUID = element.getUID();
-        Set<String> rules = new HashSet<String>();
+        Set<String> rules = new HashSet<>();
         synchronized (this) {
             Set<String> rulesForResolving = mapTemplateToRules.get(templateUID);
             if (rulesForResolving != null) {
@@ -655,12 +640,22 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         for (String rUID : rules) {
             try {
                 Rule unresolvedRule = get(rUID);
-                Rule resolvedRule = resolveRuleByTemplate(unresolvedRule);
-                Provider<Rule> provider = getProvider(rUID);
-                if (provider instanceof ManagedRuleProvider) {
-                    update(resolvedRule);
+                if (unresolvedRule != null) {
+                    Rule resolvedRule = resolveRuleByTemplate(unresolvedRule);
+                    Provider<Rule> provider = getProvider(rUID);
+                    if (provider instanceof ManagedRuleProvider) {
+                        update(resolvedRule);
+                    } else if (provider != null) {
+                        updated(provider, unresolvedRule, unresolvedRule);
+                    } else {
+                        logger.error(
+                                "Resolving the rule '{}' by template '{}' failed because the provider is not known",
+                                rUID, templateUID);
+                    }
                 } else {
-                    updated(provider, unresolvedRule, unresolvedRule);
+                    logger.error(
+                            "Resolving the rule '{}' by template '{}' failed because it is not known to the registry",
+                            rUID, templateUID);
                 }
             } catch (IllegalArgumentException e) {
                 logger.error("Resolving the rule '{}' by template '{}' failed", rUID, templateUID, e);
@@ -677,16 +672,4 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     public void updated(RuleTemplate oldElement, RuleTemplate element) {
         // Do nothing - resolved rules are independent from templates
     }
-
-    /**
-     * Getter for {@link #scheduleReinitializationDelay} used by {@link RuleEngineImpl} to schedule rule's
-     * re-initialization
-     * tries.
-     *
-     * @return the {@link #scheduleReinitializationDelay}.
-     */
-    long getScheduleReinitializationDelay() {
-        return scheduleReinitializationDelay;
-    }
-
 }

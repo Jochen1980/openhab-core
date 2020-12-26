@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -21,10 +21,12 @@ import java.util.UUID;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.core.automation.Module;
 import org.openhab.core.automation.handler.BaseModuleHandler;
 import org.openhab.core.automation.module.script.ScriptEngineContainer;
 import org.openhab.core.automation.module.script.ScriptEngineManager;
+import org.openhab.core.config.core.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,43 +34,54 @@ import org.slf4j.LoggerFactory;
  * This is an abstract class that can be used when implementing any module handler that handles scripts.
  *
  * @author Kai Kreuzer - Initial contribution
- * @author Simon Merschjohann
+ * @author Simon Merschjohann - Initial contribution
  *
  * @param <T> the type of module the concrete handler can handle
  */
+@NonNullByDefault
 public abstract class AbstractScriptModuleHandler<T extends Module> extends BaseModuleHandler<T> {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private final Logger logger = LoggerFactory.getLogger(AbstractScriptModuleHandler.class);
 
     /** Constant defining the configuration parameter of modules that specifies the mime type of a script */
-    protected static final String SCRIPT_TYPE = "type";
+    public static final String SCRIPT_TYPE = "type";
 
     /** Constant defining the configuration parameter of modules that specifies the script itself */
-    protected static final String SCRIPT = "script";
+    public static final String SCRIPT = "script";
 
-    protected ScriptEngineManager scriptEngineManager;
+    protected final ScriptEngineManager scriptEngineManager;
 
     private final String engineIdentifier;
 
     private Optional<ScriptEngine> scriptEngine = Optional.empty();
-    private String type;
-    protected String script;
+    private final String type;
+    protected final String script;
 
-    private final String ruleUID;
+    protected final String ruleUID;
 
     public AbstractScriptModuleHandler(T module, String ruleUID, ScriptEngineManager scriptEngineManager) {
         super(module);
         this.scriptEngineManager = scriptEngineManager;
         this.ruleUID = ruleUID;
-        engineIdentifier = UUID.randomUUID().toString();
+        this.engineIdentifier = UUID.randomUUID().toString();
 
-        loadConfig();
+        this.type = getValidConfigParameter(SCRIPT_TYPE, module.getConfiguration(), module.getId());
+        this.script = getValidConfigParameter(SCRIPT, module.getConfiguration(), module.getId());
+    }
+
+    private static String getValidConfigParameter(String parameter, Configuration config, String moduleId) {
+        Object value = config.get(parameter);
+        if (value != null && value instanceof String && !((String) value).trim().isEmpty()) {
+            return (String) value;
+        } else {
+            throw new IllegalStateException(String.format(
+                    "Config parameter '%s' is missing in the configuration of module '%s'.", parameter, moduleId));
+        }
     }
 
     @Override
     public void dispose() {
-        if (scriptEngine != null) {
-            scriptEngineManager.removeEngine(engineIdentifier);
-        }
+        scriptEngineManager.removeEngine(engineIdentifier);
     }
 
     protected Optional<ScriptEngine> getScriptEngine() {
@@ -85,23 +98,6 @@ public abstract class AbstractScriptModuleHandler<T extends Module> extends Base
             logger.debug("No engine available for script type '{}' in action '{}'.", type, module.getId());
             return Optional.empty();
         }
-    }
-
-    private void loadConfig() {
-        Object type = module.getConfiguration().get(SCRIPT_TYPE);
-        Object script = module.getConfiguration().get(SCRIPT);
-        if (!isValid(type)) {
-            throw new IllegalStateException(String.format("Type is missing in the configuration of module '%s'.", module.getId()));
-        } else if (!isValid(script)) {
-            throw new IllegalStateException(String.format("Script is missing in the configuration of module '%s'.", module.getId()));
-        } else {
-            this.type = (String) type;
-            this.script = (String) script;
-        }
-    }
-    
-    private boolean isValid(Object parameter) {
-        return parameter != null && parameter instanceof String && !((String) parameter).trim().isEmpty();
     }
 
     /**
@@ -134,5 +130,4 @@ public abstract class AbstractScriptModuleHandler<T extends Module> extends Base
             executionContext.setAttribute(key, value, ScriptContext.ENGINE_SCOPE);
         }
     }
-
 }

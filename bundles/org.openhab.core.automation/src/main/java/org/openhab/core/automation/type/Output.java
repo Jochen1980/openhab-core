@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -39,9 +39,9 @@ import org.openhab.core.automation.Rule;
  * <p>
  * An {@link Output} can be connected to more than one {@link Input} with a compatible data type.<br>
  *
- * @author Yordan Mihaylov - Initial Contribution
- * @author Ana Dimova - Initial Contribution
- * @author Vasil Ilchev - Initial Contribution
+ * @author Yordan Mihaylov - Initial contribution
+ * @author Ana Dimova - Initial contribution
+ * @author Vasil Ilchev - Initial contribution
  */
 public class Output {
 
@@ -109,21 +109,21 @@ public class Output {
     /**
      * Constructs an {@code Output} instance with the specified parameters.
      *
-     * @param name         a unique name of the {@code Output}.
-     * @param type         the type of the output data.
-     * @param label        a single word description of the {@code Output}.
-     * @param description  is an user friendly description of the {@code Output}.
-     * @param tags         are associated with the {@code Output}. The tags add additional restrictions to connections
-     *                     between {@link Input}s and {@link Output}s. The {@link Input}'s tags must be subset of the
-     *                     {@code Output}'s tags to succeed the connection.<br>
-     *                     For example: When we want to connect {@link Input} to
-     *                     {@code Output} and both have same java.lang.double data type. The the output has assign
-     *                     "temperature" and "celsius" tags then the input must have at least one of these output's tags
-     *                     (i.e. "temperature") to connect this input to the selected {@code Output}.
-     * @param reference    refers to the data source. It defines what part of complex data should be used as source of
-     *                     this {@code Output}.
+     * @param name a unique name of the {@code Output}.
+     * @param type the type of the output data.
+     * @param label a single word description of the {@code Output}.
+     * @param description is an user friendly description of the {@code Output}.
+     * @param tags are associated with the {@code Output}. The tags add additional restrictions to connections
+     *            between {@link Input}s and {@link Output}s. The {@link Input}'s tags must be subset of the
+     *            {@code Output}'s tags to succeed the connection.<br>
+     *            For example: When we want to connect {@link Input} to
+     *            {@code Output} and both have same java.lang.double data type. The the output has assign
+     *            "temperature" and "celsius" tags then the input must have at least one of these output's tags
+     *            (i.e. "temperature") to connect this input to the selected {@code Output}.
+     * @param reference refers to the data source. It defines what part of complex data should be used as source of
+     *            this {@code Output}.
      * @param defaultValue takes place when there is no runtime value for this {@code Output}. Type of the default value
-     *                     must be the type of the {@code Output}.
+     *            must be the type of the {@code Output}.
      * @throws IllegalArgumentException If one of the name or type parameters is null.
      */
     public Output(String name, String type, String label, String description, Set<String> tags, String reference,

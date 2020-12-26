@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -14,8 +14,9 @@ package org.openhab.core.automation.template;
 
 import java.util.Locale;
 
-import org.eclipse.smarthome.core.common.registry.Provider;
-import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.openhab.core.common.registry.Provider;
+import org.openhab.core.common.registry.ProviderChangeListener;
 
 /**
  * This interface provides basic functionality for managing {@link RuleTemplate}s. It can be used for
@@ -27,8 +28,9 @@ import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
  * {@link #addProviderChangeListener(ProviderChangeListener)}
  * and removed with the {@link #removeProviderChangeListener(ProviderChangeListener)} methods.
  *
- * @author Ana Dimova - Initial Contribution
+ * @author Ana Dimova - Initial contribution
  */
+@NonNullByDefault
 public interface RuleTemplateProvider extends TemplateProvider<RuleTemplate> {
 
 }

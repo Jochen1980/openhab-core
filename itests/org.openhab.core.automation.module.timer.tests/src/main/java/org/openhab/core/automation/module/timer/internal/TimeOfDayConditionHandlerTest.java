@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -13,27 +13,27 @@
 package org.openhab.core.automation.module.timer.internal;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.smarthome.config.core.Configuration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openhab.core.automation.Condition;
 import org.openhab.core.automation.internal.module.handler.DayOfWeekConditionHandler;
 import org.openhab.core.automation.internal.module.handler.TimeOfDayConditionHandler;
 import org.openhab.core.automation.type.ModuleTypeRegistry;
 import org.openhab.core.automation.util.ModuleBuilder;
+import org.openhab.core.config.core.Configuration;
 
 /**
  * This tests the TimeOfDay Condition.
  *
- * @author Dominik Schlierf - initial contribution
- *
+ * @author Dominik Schlierf - Initial contribution
  */
 public class TimeOfDayConditionHandlerTest extends BasicConditionHandlerTest {
 
@@ -52,26 +52,26 @@ public class TimeOfDayConditionHandlerTest extends BasicConditionHandlerTest {
         // Time is between start and end time -> should return true.
         TimeOfDayConditionHandler handler = getTimeOfDayConditionHandler(beforeCurrentTime.toString(),
                 afterCurrentTime.toString());
-        assertThat(handler.isSatisfied(null), is(true));
+        assertThat(handler.isSatisfied(Collections.emptyMap()), is(true));
 
         // Time is equal to start time -> should return true
         handler = getTimeOfDayConditionHandler(currentTime.toString(), afterCurrentTime.toString());
-        assertThat(handler.isSatisfied(null), is(true));
+        assertThat(handler.isSatisfied(Collections.emptyMap()), is(true));
 
         // Time is equal to end time -> should return false
         handler = getTimeOfDayConditionHandler(beforeCurrentTime.toString(), currentTime.toString());
-        assertThat(handler.isSatisfied(null), is(false));
+        assertThat(handler.isSatisfied(Collections.emptyMap()), is(false));
 
         // Start value is in the future & end value is in the past
         // -> should return false
         handler = getTimeOfDayConditionHandler(afterCurrentTime.toString(), beforeCurrentTime.toString());
-        assertThat(handler.isSatisfied(null), is(false));
+        assertThat(handler.isSatisfied(Collections.emptyMap()), is(false));
 
         // Start & end time are in the future & start time is after the end time
         // -> should return true
         handler = getTimeOfDayConditionHandler(afterCurrentTime.plus(Duration.ofMinutes(2)).toString(),
                 afterCurrentTime.toString());
-        assertThat(handler.isSatisfied(null), is(true));
+        assertThat(handler.isSatisfied(Collections.emptyMap()), is(true));
     }
 
     private TimeOfDayConditionHandler getTimeOfDayConditionHandler(String startTime, String endTime) {

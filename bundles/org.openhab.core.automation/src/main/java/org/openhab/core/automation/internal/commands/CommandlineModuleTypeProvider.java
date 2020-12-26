@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -26,7 +26,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.automation.parser.Parser;
 import org.openhab.core.automation.parser.ParsingException;
 import org.openhab.core.automation.parser.ParsingNestedException;
@@ -34,6 +35,7 @@ import org.openhab.core.automation.template.TemplateProvider;
 import org.openhab.core.automation.type.ModuleType;
 import org.openhab.core.automation.type.ModuleTypeProvider;
 import org.openhab.core.automation.type.ModuleTypeRegistry;
+import org.openhab.core.common.registry.ProviderChangeListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
@@ -52,18 +54,18 @@ import org.osgi.framework.ServiceRegistration;
  * <p>
  * accordingly to the used command.
  *
- * @author Ana Dimova - Initial Contribution
+ * @author Ana Dimova - Initial contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
- *
  */
+@NonNullByDefault
 public class CommandlineModuleTypeProvider extends AbstractCommandProvider<ModuleType> implements ModuleTypeProvider {
 
     /**
      * This field holds a reference to the {@link TemplateProvider} service registration.
      */
     @SuppressWarnings("rawtypes")
-    protected ServiceRegistration mtpReg;
-    private ModuleTypeRegistry moduleTypeRegistry;
+    protected @Nullable ServiceRegistration mtpReg;
+    private final ModuleTypeRegistry moduleTypeRegistry;
 
     /**
      * This constructor creates instances of this particular implementation of {@link ModuleTypeProvider}. It does not
@@ -73,10 +75,9 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
      * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
      * @param moduleTypeRegistry a ModuleTypeRegistry service
      */
-    public CommandlineModuleTypeProvider(BundleContext context, ModuleTypeRegistry moduleTypeRegistry) {
-        super(context);
-        listeners = new LinkedList<ProviderChangeListener<ModuleType>>();
-        mtpReg = bc.registerService(ModuleTypeProvider.class.getName(), this, null);
+    public CommandlineModuleTypeProvider(BundleContext bundleContext, ModuleTypeRegistry moduleTypeRegistry) {
+        super(bundleContext);
+        mtpReg = bundleContext.registerService(ModuleTypeProvider.class.getName(), this, null);
         this.moduleTypeRegistry = moduleTypeRegistry;
     }
 
@@ -87,8 +88,8 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
      * @see AbstractCommandProvider#addingService(org.osgi.framework.ServiceReference)
      */
     @Override
-    public Object addingService(@SuppressWarnings("rawtypes") ServiceReference reference) {
-        if (reference.getProperty(Parser.PARSER_TYPE).equals(Parser.PARSER_MODULE_TYPE)) {
+    public @Nullable Object addingService(@SuppressWarnings("rawtypes") @Nullable ServiceReference reference) {
+        if (reference != null && Parser.PARSER_MODULE_TYPE.equals(reference.getProperty(Parser.PARSER_TYPE))) {
             return super.addingService(reference);
         }
         return null;
@@ -132,19 +133,18 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
             throw new ParsingException(new ParsingNestedException(ParsingNestedException.MODULE_TYPE, null,
                     new Exception("Parser " + parserType + " not available")));
         }
-
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public ModuleType getModuleType(String UID, Locale locale) {
+    public @Nullable ModuleType getModuleType(String UID, @Nullable Locale locale) {
         synchronized (providedObjectsHolder) {
             return providedObjectsHolder.get(UID);
         }
     }
 
     @Override
-    public Collection<ModuleType> getModuleTypes(Locale locale) {
+    public Collection<ModuleType> getModuleTypes(@Nullable Locale locale) {
         synchronized (providedObjectsHolder) {
             return !providedObjectsHolder.isEmpty() ? providedObjectsHolder.values()
                     : Collections.<ModuleType> emptyList();
@@ -189,13 +189,13 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
         Set<ModuleType> providedObjects = parser.parse(inputStreamReader);
         if (providedObjects != null && !providedObjects.isEmpty()) {
             String uid = null;
-            List<String> portfolio = new ArrayList<String>();
+            List<String> portfolio = new ArrayList<>();
             synchronized (providerPortfolio) {
                 providerPortfolio.put(url, portfolio);
             }
-            List<ParsingNestedException> importDataExceptions = new ArrayList<ParsingNestedException>();
+            List<ParsingNestedException> importDataExceptions = new ArrayList<>();
             for (ModuleType providedObject : providedObjects) {
-                List<ParsingNestedException> exceptions = new ArrayList<ParsingNestedException>();
+                List<ParsingNestedException> exceptions = new ArrayList<>();
                 uid = providedObject.getUID();
                 checkExistence(uid, exceptions);
                 if (exceptions.isEmpty()) {
@@ -236,7 +236,7 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
 
     @Override
     public Collection<ModuleType> getAll() {
-        return new LinkedList<ModuleType>(providedObjectsHolder.values());
+        return new LinkedList<>(providedObjectsHolder.values());
     }
 
     @Override
@@ -253,7 +253,7 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
         }
     }
 
-    protected void notifyListeners(ModuleType oldElement, ModuleType newElement) {
+    protected void notifyListeners(@Nullable ModuleType oldElement, ModuleType newElement) {
         synchronized (listeners) {
             for (ProviderChangeListener<ModuleType> listener : listeners) {
                 if (oldElement != null) {
@@ -264,7 +264,7 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
         }
     }
 
-    protected void notifyListeners(ModuleType removedObject) {
+    protected void notifyListeners(@Nullable ModuleType removedObject) {
         if (removedObject != null) {
             synchronized (listeners) {
                 for (ProviderChangeListener<ModuleType> listener : listeners) {
@@ -273,5 +273,4 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
             }
         }
     }
-
 }

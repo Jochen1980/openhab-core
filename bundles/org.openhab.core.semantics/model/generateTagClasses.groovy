@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -61,20 +61,21 @@ def createTagSetClass(def line, String tagSet) {
     def parent = line.Parent
     def parentClass = parent ? parent : type
     def pkg = type.toLowerCase()
-    def file = new FileWriter("../src/main/java/org/eclipse/smarthome/core/semantics/model/" + pkg + "/" + tag + ".java")
+    def file = new FileWriter("../src/main/java/org/openhab/core/semantics/model/" + pkg + "/" + tag + ".java")
     file.write(header())
-    file.write("package org.eclipse.smarthome.core.semantics.model." + pkg + ";\n\n")
+    file.write("package org.openhab.core.semantics.model." + pkg + ";\n\n")
+    file.write("import org.eclipse.jdt.annotation.NonNullByDefault;\n")
     if(!parent) {
-            file.write("import org.eclipse.smarthome.core.semantics.model." + type + ";\n")
+            file.write("import org.openhab.core.semantics.model." + type + ";\n")
     }
-    file.write("""import org.eclipse.smarthome.core.semantics.model.TagInfo;
+    file.write("""import org.openhab.core.semantics.model.TagInfo;
 
 /**
  * This class defines a ${label}.
- * 
- * @author Generated from generateTagClasses.groovy - Initial contribution
  *
+ * @author Generated from generateTagClasses.groovy - Initial contribution
  */
+@NonNullByDefault
 @TagInfo(id = "${tagSet}", label = "${label}", synonyms = "${synonyms}", description = "${desc}")
 public interface ${tag} extends ${parentClass} {
 }
@@ -91,22 +92,23 @@ def appendLabelsFile(FileWriter file, def line, String tagSet) {
 }
 
 def createLocationsFile(Set<String> locations) {
-    def file = new FileWriter("../src/main/java/org/eclipse/smarthome/core/semantics/model/location/Locations.java")
+    def file = new FileWriter("../src/main/java/org/openhab/core/semantics/model/location/Locations.java")
     file.write(header())
-    file.write("""package org.eclipse.smarthome.core.semantics.model.location;
+    file.write("""package org.openhab.core.semantics.model.location;
 
 import java.util.Set;
 import java.util.HashSet;
 import java.util.stream.Stream;
 
-import org.eclipse.smarthome.core.semantics.model.Location;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.openhab.core.semantics.model.Location;
 
 /**
  * This class provides a stream of all defined locations.
- * 
- * @author Generated from generateTagClasses.groovy - Initial contribution
  *
+ * @author Generated from generateTagClasses.groovy - Initial contribution
  */
+@NonNullByDefault
 public class Locations {
 
     static final Set<Class<? extends Location>> LOCATIONS = new HashSet<>();
@@ -130,22 +132,23 @@ public class Locations {
 }
 
 def createEquipmentsFile(Set<String> equipments) {
-    def file = new FileWriter("../src/main/java/org/eclipse/smarthome/core/semantics/model/equipment/Equipments.java")
+    def file = new FileWriter("../src/main/java/org/openhab/core/semantics/model/equipment/Equipments.java")
     file.write(header())
-    file.write("""package org.eclipse.smarthome.core.semantics.model.equipment;
+    file.write("""package org.openhab.core.semantics.model.equipment;
 
 import java.util.Set;
 import java.util.HashSet;
 import java.util.stream.Stream;
 
-import org.eclipse.smarthome.core.semantics.model.Equipment;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.openhab.core.semantics.model.Equipment;
 
 /**
  * This class provides a stream of all defined equipments.
- * 
- * @author Generated from generateTagClasses.groovy - Initial contribution
  *
+ * @author Generated from generateTagClasses.groovy - Initial contribution
  */
+@NonNullByDefault
 public class Equipments {
 
     static final Set<Class<? extends Equipment>> EQUIPMENTS = new HashSet<>();
@@ -169,22 +172,23 @@ public class Equipments {
 }
 
 def createPointsFile(Set<String> points) {
-    def file = new FileWriter("../src/main/java/org/eclipse/smarthome/core/semantics/model/point/Points.java")
+    def file = new FileWriter("../src/main/java/org/openhab/core/semantics/model/point/Points.java")
     file.write(header())
-    file.write("""package org.eclipse.smarthome.core.semantics.model.point;
+    file.write("""package org.openhab.core.semantics.model.point;
 
 import java.util.Set;
 import java.util.HashSet;
 import java.util.stream.Stream;
 
-import org.eclipse.smarthome.core.semantics.model.Point;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.openhab.core.semantics.model.Point;
 
 /**
  * This class provides a stream of all defined points.
- * 
- * @author Generated from generateTagClasses.groovy - Initial contribution
  *
+ * @author Generated from generateTagClasses.groovy - Initial contribution
  */
+@NonNullByDefault
 public class Points {
 
     static final Set<Class<? extends Point>> POINTS = new HashSet<>();
@@ -208,22 +212,23 @@ public class Points {
 }
 
 def createPropertiesFile(Set<String> properties) {
-    def file = new FileWriter("../src/main/java/org/eclipse/smarthome/core/semantics/model/property/Properties.java")
+    def file = new FileWriter("../src/main/java/org/openhab/core/semantics/model/property/Properties.java")
     file.write(header())
-    file.write("""package org.eclipse.smarthome.core.semantics.model.property;
+    file.write("""package org.openhab.core.semantics.model.property;
 
 import java.util.Set;
 import java.util.HashSet;
 import java.util.stream.Stream;
 
-import org.eclipse.smarthome.core.semantics.model.Property;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.openhab.core.semantics.model.Property;
 
 /**
  * This class provides a stream of all defined properties.
- * 
- * @author Generated from generateTagClasses.groovy - Initial contribution
  *
+ * @author Generated from generateTagClasses.groovy - Initial contribution
  */
+@NonNullByDefault
 public class Properties {
 
     static final Set<Class<? extends Property>> PROPERTIES = new HashSet<>();
@@ -247,10 +252,10 @@ public class Properties {
 }
 
 def header() { """/**
- * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at

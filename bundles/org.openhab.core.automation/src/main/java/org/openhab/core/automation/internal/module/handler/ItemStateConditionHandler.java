@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -14,32 +14,24 @@ package org.openhab.core.automation.internal.module.handler;
 
 import java.util.Map;
 
-import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.items.ItemNotFoundException;
-import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.eclipse.smarthome.core.library.types.DecimalType;
-import org.eclipse.smarthome.core.types.State;
-import org.eclipse.smarthome.core.types.TypeParser;
 import org.openhab.core.automation.Condition;
-import org.openhab.core.automation.handler.BaseModuleHandler;
-import org.openhab.core.automation.handler.ConditionHandler;
+import org.openhab.core.automation.handler.BaseConditionModuleHandler;
+import org.openhab.core.items.Item;
+import org.openhab.core.items.ItemNotFoundException;
+import org.openhab.core.items.ItemRegistry;
+import org.openhab.core.library.types.DecimalType;
+import org.openhab.core.types.State;
+import org.openhab.core.types.TypeParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * ConditionHandler implementation to check item state
  *
- * @author Benedikt Niehues - Initial contribution and API
+ * @author Benedikt Niehues - Initial contribution
  * @author Kai Kreuzer - refactored and simplified customized module handling
- *
  */
-public class ItemStateConditionHandler extends BaseModuleHandler<Condition> implements ConditionHandler {
-
-    private final Logger logger = LoggerFactory.getLogger(ItemStateConditionHandler.class);
-
-    public static final String ITEM_STATE_CONDITION = "core.ItemStateCondition";
-
-    private ItemRegistry itemRegistry;
+public class ItemStateConditionHandler extends BaseConditionModuleHandler {
 
     /**
      * Constants for Config-Parameters corresponding to Definition in
@@ -48,6 +40,12 @@ public class ItemStateConditionHandler extends BaseModuleHandler<Condition> impl
     private static final String ITEM_NAME = "itemName";
     private static final String OPERATOR = "operator";
     private static final String STATE = "state";
+
+    private final Logger logger = LoggerFactory.getLogger(ItemStateConditionHandler.class);
+
+    public static final String ITEM_STATE_CONDITION = "core.ItemStateCondition";
+
+    private ItemRegistry itemRegistry;
 
     public ItemStateConditionHandler(Condition condition) {
         super(condition);
@@ -94,6 +92,7 @@ public class ItemStateConditionHandler extends BaseModuleHandler<Condition> impl
             Item item = itemRegistry.getItem(itemName);
             State compareState = TypeParser.parseState(item.getAcceptedDataTypes(), state);
             State itemState = item.getState();
+            DecimalType decimalState = itemState.as(DecimalType.class);
             logger.debug("ItemStateCondition '{}'checking if {} (State={}) {} {}", module.getId(), itemName, itemState,
                     operator, compareState);
             switch (operator) {
@@ -103,25 +102,26 @@ public class ItemStateConditionHandler extends BaseModuleHandler<Condition> impl
                 case "!=":
                     return !itemState.equals(compareState);
                 case "<":
-                    if (itemState instanceof DecimalType && compareState instanceof DecimalType) {
-                        return ((DecimalType) itemState).compareTo((DecimalType) compareState) < 0;
+                    if (null != decimalState && compareState instanceof DecimalType) {
+                        return decimalState.compareTo((DecimalType) compareState) < 0;
                     }
+
                     break;
                 case "<=":
                 case "=<":
-                    if (itemState instanceof DecimalType && compareState instanceof DecimalType) {
-                        return ((DecimalType) itemState).compareTo((DecimalType) compareState) <= 0;
+                    if (null != decimalState && compareState instanceof DecimalType) {
+                        return decimalState.compareTo((DecimalType) compareState) <= 0;
                     }
                     break;
                 case ">":
-                    if (itemState instanceof DecimalType && compareState instanceof DecimalType) {
-                        return ((DecimalType) itemState).compareTo((DecimalType) compareState) > 0;
+                    if (null != decimalState && compareState instanceof DecimalType) {
+                        return decimalState.compareTo((DecimalType) compareState) > 0;
                     }
                     break;
                 case ">=":
                 case "=>":
-                    if (itemState instanceof DecimalType && compareState instanceof DecimalType) {
-                        return ((DecimalType) itemState).compareTo((DecimalType) compareState) >= 0;
+                    if (null != decimalState && compareState instanceof DecimalType) {
+                        return decimalState.compareTo((DecimalType) compareState) >= 0;
                     }
                     break;
                 default:
@@ -133,5 +133,4 @@ public class ItemStateConditionHandler extends BaseModuleHandler<Condition> impl
         }
         return false;
     }
-
 }

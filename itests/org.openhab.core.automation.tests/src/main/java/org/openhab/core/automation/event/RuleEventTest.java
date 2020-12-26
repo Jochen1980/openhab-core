@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -12,40 +12,23 @@
  */
 package org.openhab.core.automation.event;
 
+import static java.util.Map.entry;
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
-import org.eclipse.smarthome.core.events.Event;
-import org.eclipse.smarthome.core.events.EventFilter;
-import org.eclipse.smarthome.core.events.EventPublisher;
-import org.eclipse.smarthome.core.events.EventSubscriber;
-import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.items.ItemNotFoundException;
-import org.eclipse.smarthome.core.items.ItemProvider;
-import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
-import org.eclipse.smarthome.core.items.events.ItemEventFactory;
-import org.eclipse.smarthome.core.library.items.SwitchItem;
-import org.eclipse.smarthome.core.library.types.OnOffType;
-import org.eclipse.smarthome.test.java.JavaOSGiTest;
-import org.eclipse.smarthome.test.storage.VolatileStorageService;
-import org.junit.Before;
-import org.junit.Test;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openhab.core.automation.Action;
 import org.openhab.core.automation.Rule;
 import org.openhab.core.automation.RuleManager;
@@ -56,71 +39,85 @@ import org.openhab.core.automation.events.RuleAddedEvent;
 import org.openhab.core.automation.events.RuleRemovedEvent;
 import org.openhab.core.automation.events.RuleStatusInfoEvent;
 import org.openhab.core.automation.events.RuleUpdatedEvent;
+import org.openhab.core.automation.internal.RuleEngineImpl;
 import org.openhab.core.automation.util.ModuleBuilder;
 import org.openhab.core.automation.util.RuleBuilder;
+import org.openhab.core.common.registry.ProviderChangeListener;
+import org.openhab.core.config.core.Configuration;
+import org.openhab.core.events.Event;
+import org.openhab.core.events.EventFilter;
+import org.openhab.core.events.EventPublisher;
+import org.openhab.core.events.EventSubscriber;
+import org.openhab.core.items.Item;
+import org.openhab.core.items.ItemNotFoundException;
+import org.openhab.core.items.ItemProvider;
+import org.openhab.core.items.ItemRegistry;
+import org.openhab.core.items.events.ItemCommandEvent;
+import org.openhab.core.items.events.ItemEventFactory;
+import org.openhab.core.library.items.SwitchItem;
+import org.openhab.core.library.types.OnOffType;
+import org.openhab.core.service.ReadyMarker;
+import org.openhab.core.test.java.JavaOSGiTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This tests events of rules
  *
- * @author Benedikt Niehues - initial contribution
+ * @author Benedikt Niehues - Initial contribution
  * @author Kai Kreuzer - ported test to Java
- *
  */
+@NonNullByDefault
 public class RuleEventTest extends JavaOSGiTest {
 
-    final Logger logger = LoggerFactory.getLogger(RuleEventTest.class);
-    VolatileStorageService volatileStorageService = new VolatileStorageService();
+    private final Logger logger = LoggerFactory.getLogger(RuleEventTest.class);
 
-    Event itemEvent = null;
-    Event ruleRemovedEvent = null;
+    private @Nullable Event itemEvent = null;
+    private @Nullable Event ruleRemovedEvent = null;
 
     public RuleEventTest() {
     }
 
-    @Before
+    @BeforeEach
     public void before() {
         ItemProvider itemProvider = new ItemProvider() {
 
             @Override
-            public void addProviderChangeListener(@NonNull ProviderChangeListener<@NonNull Item> listener) {
+            public void addProviderChangeListener(ProviderChangeListener<Item> listener) {
             }
 
             @Override
-            public @NonNull Collection<@NonNull Item> getAll() {
-                return Arrays.asList(new Item[] { new SwitchItem("myMotionItem"), new SwitchItem("myPresenceItem"),
+            public Collection<Item> getAll() {
+                return List.of(new SwitchItem("myMotionItem"), new SwitchItem("myPresenceItem"),
                         new SwitchItem("myLampItem"), new SwitchItem("myMotionItem2"),
-                        new SwitchItem("myPresenceItem2"), new SwitchItem("myLampItem2") });
+                        new SwitchItem("myPresenceItem2"), new SwitchItem("myLampItem2"));
             }
 
             @Override
-            public void removeProviderChangeListener(@NonNull ProviderChangeListener<@NonNull Item> listener) {
+            public void removeProviderChangeListener(ProviderChangeListener<Item> listener) {
             }
         };
         registerService(itemProvider);
         registerVolatileStorageService();
+
+        // start rule engine
+        ((RuleEngineImpl) getService(RuleManager.class)).onReadyMarkerAdded(new ReadyMarker("", ""));
     }
 
     @Test
     public void testRuleEvents() throws ItemNotFoundException {
-
         // Registering eventSubscriber
         List<Event> ruleEvents = new ArrayList<>();
 
         EventSubscriber ruleEventHandler = new EventSubscriber() {
             @Override
             public Set<String> getSubscribedEventTypes() {
-                Set<String> types = new HashSet<>();
-                types.add(RuleAddedEvent.TYPE);
-                types.add(RuleRemovedEvent.TYPE);
-                types.add(RuleStatusInfoEvent.TYPE);
-                types.add(RuleUpdatedEvent.TYPE);
-                return types;
+                return Set.of(RuleAddedEvent.TYPE, RuleRemovedEvent.TYPE, RuleStatusInfoEvent.TYPE,
+                        RuleUpdatedEvent.TYPE);
             }
 
             @Override
-            public EventFilter getEventFilter() {
+            public @Nullable EventFilter getEventFilter() {
                 return null;
             }
 
@@ -133,21 +130,15 @@ public class RuleEventTest extends JavaOSGiTest {
         registerService(ruleEventHandler);
 
         // Creation of RULE
-        Map<String, Object> triggerCfgEntries = new HashMap<>();
-        triggerCfgEntries.put("eventSource", "myMotionItem2");
-        triggerCfgEntries.put("eventTopic", "smarthome/*");
-        triggerCfgEntries.put("eventTypes", "ItemStateEvent");
-        Configuration triggerConfig = new Configuration(triggerCfgEntries);
+        Configuration triggerConfig = new Configuration(Map.ofEntries(entry("eventSource", "myMotionItem2"),
+                entry("eventTopic", "openhab/*"), entry("eventTypes", "ItemStateEvent")));
 
-        Map<String, Object> actionCfgEntries = new HashMap<>();
-        actionCfgEntries.put("itemName", "myLampItem2");
-        actionCfgEntries.put("command", "ON");
-        Configuration actionConfig = new Configuration(actionCfgEntries);
+        Configuration actionConfig = new Configuration(
+                Map.ofEntries(entry("itemName", "myLampItem2"), entry("command", "ON")));
 
-        List<Trigger> triggers = Collections
-                .singletonList(ModuleBuilder.createTrigger().withId("ItemStateChangeTrigger2")
-                        .withTypeUID("core.GenericEventTrigger").withConfiguration(triggerConfig).build());
-        List<Action> actions = Collections.singletonList(ModuleBuilder.createAction().withId("ItemPostCommandAction2")
+        List<Trigger> triggers = List.of(ModuleBuilder.createTrigger().withId("ItemStateChangeTrigger2")
+                .withTypeUID("core.GenericEventTrigger").withConfiguration(triggerConfig).build());
+        List<Action> actions = List.of(ModuleBuilder.createAction().withId("ItemPostCommandAction2")
                 .withTypeUID("core.ItemCommandAction").withConfiguration(actionConfig).build());
 
         Rule rule = RuleBuilder.create("myRule21").withTriggers(triggers).withActions(actions)
@@ -184,25 +175,25 @@ public class RuleEventTest extends JavaOSGiTest {
 
             @Override
             public Set<String> getSubscribedEventTypes() {
-                return Collections.singleton(ItemCommandEvent.TYPE);
+                return Set.of(ItemCommandEvent.TYPE);
             }
 
             @Override
-            public EventFilter getEventFilter() {
+            public @Nullable EventFilter getEventFilter() {
                 return null;
             }
         };
         registerService(itemEventHandler);
         eventPublisher.post(ItemEventFactory.createStateEvent("myMotionItem2", OnOffType.ON));
         waitForAssert(() -> assertThat(itemEvent, is(notNullValue())));
-        assertThat(itemEvent.getTopic(), is(equalTo("smarthome/items/myLampItem2/command")));
+        assertThat(itemEvent.getTopic(), is(equalTo("openhab/items/myLampItem2/command")));
         assertThat(((ItemCommandEvent) itemEvent).getItemCommand(), is(OnOffType.ON));
         assertThat(ruleEvents.size(), is(not(0)));
-        assertThat(ruleEvents.stream().filter(e -> e.getTopic().equals("smarthome/rules/myRule21/added")).findFirst()
+        assertThat(ruleEvents.stream().filter(e -> "openhab/rules/myRule21/added".equals(e.getTopic())).findFirst()
                 .isPresent(), is(true));
-        assertThat(ruleEvents.stream().filter(e -> e.getTopic().equals("smarthome/rules/myRule21/state")).findFirst()
+        assertThat(ruleEvents.stream().filter(e -> "openhab/rules/myRule21/state".equals(e.getTopic())).findFirst()
                 .isPresent(), is(true));
-        List<Event> stateEvents = ruleEvents.stream().filter(e -> e.getTopic().equals("smarthome/rules/myRule21/state"))
+        List<Event> stateEvents = ruleEvents.stream().filter(e -> "openhab/rules/myRule21/state".equals(e.getTopic()))
                 .collect(Collectors.toList());
         assertThat(stateEvents, is(notNullValue()));
         Optional<Event> runningEvent = stateEvents.stream()
@@ -213,11 +204,11 @@ public class RuleEventTest extends JavaOSGiTest {
 
             @Override
             public Set<String> getSubscribedEventTypes() {
-                return Collections.singleton(RuleRemovedEvent.TYPE);
+                return Set.of(RuleRemovedEvent.TYPE);
             }
 
             @Override
-            public EventFilter getEventFilter() {
+            public @Nullable EventFilter getEventFilter() {
                 return null;
             }
 
@@ -232,7 +223,7 @@ public class RuleEventTest extends JavaOSGiTest {
         ruleRegistry.remove("myRule21");
         waitForAssert(() -> {
             assertThat(ruleRemovedEvent, is(notNullValue()));
-            assertThat(ruleRemovedEvent.getTopic(), is(equalTo("smarthome/rules/myRule21/removed")));
+            assertThat(ruleRemovedEvent.getTopic(), is(equalTo("openhab/rules/myRule21/removed")));
         });
     }
 }

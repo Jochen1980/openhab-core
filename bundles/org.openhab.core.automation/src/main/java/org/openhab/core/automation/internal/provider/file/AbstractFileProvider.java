@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -26,15 +26,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.eclipse.smarthome.config.core.ConfigConstants;
-import org.eclipse.smarthome.core.common.registry.Provider;
-import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.core.OpenHAB;
 import org.openhab.core.automation.parser.Parser;
 import org.openhab.core.automation.parser.ParsingException;
 import org.openhab.core.automation.template.Template;
 import org.openhab.core.automation.template.TemplateProvider;
 import org.openhab.core.automation.type.ModuleType;
 import org.openhab.core.automation.type.ModuleTypeProvider;
+import org.openhab.core.common.registry.Provider;
+import org.openhab.core.common.registry.ProviderChangeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,15 +48,15 @@ import org.slf4j.LoggerFactory;
  * It provides functionality for tracking {@link Parser} services and provides common functionality for notifying the
  * {@link ProviderChangeListener}s for adding, updating and removing the {@link ModuleType}s or {@link Template}s.
  *
- * @author Ana Dimova - Initial Contribution
- *
+ * @author Ana Dimova - Initial contribution
  */
-public abstract class AbstractFileProvider<E> implements Provider<E> {
+@NonNullByDefault
+public abstract class AbstractFileProvider<@NonNull E> implements Provider<E> {
 
     protected static final String CONFIG_PROPERTY_ROOTS = "roots";
-    protected Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final Logger logger = LoggerFactory.getLogger(AbstractFileProvider.class);
 
-    protected String rootSubdirectory;
+    protected final String rootSubdirectory;
     protected String[] configurationRoots;
 
     /**
@@ -63,29 +66,29 @@ public abstract class AbstractFileProvider<E> implements Provider<E> {
      * <p>
      * The Map has for keys URLs of the files containing automation objects and for values - parsed objects.
      */
-    protected Map<String, E> providedObjectsHolder = new ConcurrentHashMap<String, E>();
+    protected final Map<String, E> providedObjectsHolder = new ConcurrentHashMap<>();
 
     /**
      * This Map provides structure for fast access to the {@link Parser}s. This provides opportunity for high
      * performance at runtime of the system.
      */
-    private final Map<String, Parser<E>> parsers = new ConcurrentHashMap<String, Parser<E>>();
+    private final Map<String, Parser<E>> parsers = new ConcurrentHashMap<>();
 
     /**
      * This map is used for mapping the imported automation objects to the file that contains them. This provides
      * opportunity when an event for deletion of the file is received, how to recognize which objects are removed.
      */
-    private final Map<URL, List<String>> providerPortfolio = new ConcurrentHashMap<URL, List<String>>();
+    private final Map<URL, List<String>> providerPortfolio = new ConcurrentHashMap<>();
 
     /**
      * This Map holds URL resources that waiting for a parser to be loaded.
      */
-    private final Map<String, List<URL>> urls = new ConcurrentHashMap<String, List<URL>>();
-    private final List<ProviderChangeListener<E>> listeners = new ArrayList<ProviderChangeListener<E>>();
+    private final Map<String, List<URL>> urls = new ConcurrentHashMap<>();
+    private final List<ProviderChangeListener<E>> listeners = new ArrayList<>();
 
     public AbstractFileProvider(String root) {
         this.rootSubdirectory = root;
-        configurationRoots = new String[] { ConfigConstants.getConfigFolder() + File.separator + "automation" };
+        configurationRoots = new String[] { OpenHAB.getConfigFolder() + File.separator + "automation" };
     }
 
     public void activate(Map<String, Object> config) {
@@ -115,8 +118,8 @@ public abstract class AbstractFileProvider<E> implements Provider<E> {
             }
             this.configurationRoots = roots.split(",");
         }
-        for (int i = 0; i < this.configurationRoots.length; i++) {
-            initializeWatchService(this.configurationRoots[i] + File.separator + rootSubdirectory);
+        for (String configurationRoot : this.configurationRoots) {
+            initializeWatchService(configurationRoot + File.separator + rootSubdirectory);
         }
     }
 
@@ -251,7 +254,7 @@ public abstract class AbstractFileProvider<E> implements Provider<E> {
             synchronized (urls) {
                 List<URL> value = urls.get(parserType);
                 if (value == null) {
-                    value = new ArrayList<URL>();
+                    value = new ArrayList<>();
                     urls.put(parserType, value);
                 }
                 value.add(url);
@@ -262,18 +265,18 @@ public abstract class AbstractFileProvider<E> implements Provider<E> {
 
     protected void updateProvidedObjectsHolder(URL url, Set<E> providedObjects) {
         if (providedObjects != null && !providedObjects.isEmpty()) {
-            List<String> uids = new ArrayList<String>();
+            List<String> uids = new ArrayList<>();
             for (E providedObject : providedObjects) {
                 String uid = getUID(providedObject);
                 uids.add(uid);
-                E oldProvidedObject = providedObjectsHolder.put(uid, providedObject);
+                final @Nullable E oldProvidedObject = providedObjectsHolder.put(uid, providedObject);
                 notifyListeners(oldProvidedObject, providedObject);
             }
             providerPortfolio.put(url, uids);
         }
     }
 
-    protected void removeElements(List<String> objectsForRemove) {
+    protected void removeElements(@Nullable List<String> objectsForRemove) {
         if (objectsForRemove != null) {
             for (String removedObject : objectsForRemove) {
                 notifyListeners(providedObjectsHolder.remove(removedObject));
@@ -281,7 +284,7 @@ public abstract class AbstractFileProvider<E> implements Provider<E> {
         }
     }
 
-    protected void notifyListeners(E oldElement, E newElement) {
+    protected void notifyListeners(@Nullable E oldElement, E newElement) {
         synchronized (listeners) {
             for (ProviderChangeListener<E> listener : listeners) {
                 if (oldElement != null) {
@@ -293,7 +296,7 @@ public abstract class AbstractFileProvider<E> implements Provider<E> {
         }
     }
 
-    protected void notifyListeners(E removedObject) {
+    protected void notifyListeners(@Nullable E removedObject) {
         if (removedObject != null) {
             synchronized (listeners) {
                 for (ProviderChangeListener<E> listener : listeners) {
@@ -311,13 +314,8 @@ public abstract class AbstractFileProvider<E> implements Provider<E> {
 
     private String getParserType(URL url) {
         String fileName = url.getPath();
-        if (fileName.lastIndexOf(".") == -1) {
-            return Parser.FORMAT_JSON;
-        }
-        String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1);
-        if (fileExtension.equals("txt")) {
-            return Parser.FORMAT_JSON;
-        }
-        return fileExtension;
+        int index = fileName.lastIndexOf(".");
+        String extension = index != -1 ? fileName.substring(index + 1) : "";
+        return extension.isEmpty() || "txt".equals(extension) ? Parser.FORMAT_JSON : extension;
     }
 }

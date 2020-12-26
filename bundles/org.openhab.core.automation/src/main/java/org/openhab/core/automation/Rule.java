@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -17,10 +17,10 @@ import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
-import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.common.registry.Identifiable;
 import org.openhab.core.automation.template.RuleTemplate;
+import org.openhab.core.common.registry.Identifiable;
+import org.openhab.core.config.core.ConfigDescriptionParameter;
+import org.openhab.core.config.core.Configuration;
 
 /**
  * An automation Rule is built from {@link Module}s and consists of three parts:
@@ -39,7 +39,7 @@ import org.openhab.core.automation.template.RuleTemplate;
  * Additionally, Rules can have <code><b>tags</b></code> - non-hierarchical keywords or terms for describing them.
  * They can help the user to classify or label the Rules, and to filter and search them.
  *
- * @author Kai Kreuzer - Initial Contribution
+ * @author Kai Kreuzer - Initial contribution
  */
 @NonNullByDefault
 public interface Rule extends Identifiable<String> {
@@ -154,5 +154,4 @@ public interface Rule extends Identifiable<String> {
         }
         return null;
     }
-
 }

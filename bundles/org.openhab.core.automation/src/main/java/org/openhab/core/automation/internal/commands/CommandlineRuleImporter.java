@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -20,6 +20,8 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.automation.Rule;
 import org.openhab.core.automation.RuleRegistry;
 import org.openhab.core.automation.parser.Parser;
@@ -39,10 +41,10 @@ import org.osgi.framework.ServiceReference;
  * <li>lists the {@link Rule}s and their details
  * </ul>
  *
- * @author Ana Dimova - Initial Contribution
+ * @author Ana Dimova - Initial contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
- *
  */
+@NonNullByDefault
 public class CommandlineRuleImporter extends AbstractCommandProvider<Rule> {
 
     private final RuleRegistry ruleRegistry;
@@ -67,8 +69,8 @@ public class CommandlineRuleImporter extends AbstractCommandProvider<Rule> {
      * @see AbstractCommandProvider#addingService(org.osgi.framework.ServiceReference)
      */
     @Override
-    public Object addingService(@SuppressWarnings("rawtypes") ServiceReference reference) {
-        if (reference.getProperty(Parser.PARSER_TYPE).equals(Parser.PARSER_RULE)) {
+    public @Nullable Object addingService(@SuppressWarnings("rawtypes") @Nullable ServiceReference reference) {
+        if (reference != null && Parser.PARSER_RULE.equals(reference.getProperty(Parser.PARSER_TYPE))) {
             return super.addingService(reference);
         }
         return null;
@@ -131,5 +133,4 @@ public class CommandlineRuleImporter extends AbstractCommandProvider<Rule> {
         }
         return providedRules;
     }
-
 }

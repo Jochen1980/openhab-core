@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -14,7 +14,9 @@ package org.openhab.core.automation;
 
 import java.util.Collection;
 
-import org.eclipse.smarthome.core.common.registry.Registry;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.core.common.registry.Registry;
 
 /**
  * The {@link RuleRegistry} provides basic functionality for managing {@link Rule}s.
@@ -48,8 +50,9 @@ import org.eclipse.smarthome.core.common.registry.Registry;
  * {@link RuleStatus#DISABLED}.</li>
  * </ul>
  *
- * @author Yordan Mihaylov - Initial Contribution
+ * @author Yordan Mihaylov - Initial contribution
  */
+@NonNullByDefault
 public interface RuleRegistry extends Registry<Rule, String> {
 
     /**
@@ -61,8 +64,8 @@ public interface RuleRegistry extends Registry<Rule, String> {
      * @param rule a {@link Rule} instance which have to be added into the {@link RuleRegistry}.
      * @return a copy of the added {@link Rule}
      * @throws IllegalArgumentException when a rule with the same UID already exists or some of the conditions or
-     *                                  actions has wrong format of input reference.
-     * @throws IllegalStateException    when the RuleManagedProvider is unavailable.
+     *             actions has wrong format of input reference.
+     * @throws IllegalStateException when the RuleManagedProvider is unavailable.
      */
     @Override
     public Rule add(Rule rule);
@@ -73,7 +76,7 @@ public interface RuleRegistry extends Registry<Rule, String> {
      * @param tag specifies a tag that will filter the rules.
      * @return collection of {@link Rule}s having specified tag.
      */
-    public Collection<Rule> getByTag(String tag);
+    public Collection<Rule> getByTag(@Nullable String tag);
 
     /**
      * Gets a collection of {@link Rule}s which has specified tags.
@@ -82,5 +85,4 @@ public interface RuleRegistry extends Registry<Rule, String> {
      * @return collection of {@link Rule}s having specified tags.
      */
     public Collection<Rule> getByTags(String... tags);
-
 }

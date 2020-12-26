@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -17,20 +17,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
-import org.eclipse.smarthome.config.core.ConfigUtil;
-import org.eclipse.smarthome.config.core.Configuration;
 import org.openhab.core.automation.Module;
 import org.openhab.core.automation.RuleRegistry;
+import org.openhab.core.automation.internal.ModuleImpl;
+import org.openhab.core.automation.internal.RuleImpl;
 import org.openhab.core.automation.type.ModuleType;
 import org.openhab.core.automation.type.ModuleTypeRegistry;
+import org.openhab.core.config.core.ConfigDescriptionParameter;
+import org.openhab.core.config.core.ConfigUtil;
+import org.openhab.core.config.core.Configuration;
 
 /**
  * This class provides utility methods used by {@link RuleRegistry} to resolve and normalize the {@link RuleImpl}s
  * configuration values.
  *
- * @author Ana Dimova - Initial Contribution
- *
+ * @author Ana Dimova - Initial contribution
  */
 public class ConfigurationNormalizer {
 
@@ -61,7 +62,7 @@ public class ConfigurationNormalizer {
      */
     public static Map<String, ConfigDescriptionParameter> getConfigDescriptionMap(
             List<ConfigDescriptionParameter> configDesc) {
-        Map<String, ConfigDescriptionParameter> mapConfigDescs = new HashMap<String, ConfigDescriptionParameter>();
+        Map<String, ConfigDescriptionParameter> mapConfigDescs = new HashMap<>();
         for (ConfigDescriptionParameter configDescriptionParameter : configDesc) {
             mapConfigDescs.put(configDescriptionParameter.getName(), configDescriptionParameter);
         }
@@ -82,11 +83,11 @@ public class ConfigurationNormalizer {
             if (parameter != null) {
                 String parameterName = entry.getKey();
                 final Object value = configuration.get(parameterName);
-                final Object defaultValue = parameter.getDefault();
                 if (value instanceof String && ((String) value).contains("${")) {
                     continue; // It is a reference
                 }
                 if (value == null) {
+                    final Object defaultValue = parameter.getDefault();
                     if (defaultValue == null) {
                         configuration.remove(parameterName);
                     } else {

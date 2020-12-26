@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2019 Contributors to the openHAB project
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -204,11 +204,9 @@ public class CertificateGenerator implements BundleActivator {
             logger.debug("Save the keystore into {}.", keystoreFile.getAbsolutePath());
 
             keystore.store(new FileOutputStream(keystoreFile), KEYSTORE_PASSWORD.toCharArray());
-
         } catch (NoSuchAlgorithmException | InvalidKeySpecException | IOException | OperatorCreationException
                 | InvalidAlgorithmParameterException e) {
             throw new CertificateException("Failed to generate the new certificate.", e);
         }
     }
-
 }

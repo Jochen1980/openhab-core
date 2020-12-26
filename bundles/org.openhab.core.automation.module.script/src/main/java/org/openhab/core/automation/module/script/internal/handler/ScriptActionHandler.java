@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -17,6 +17,8 @@ import java.util.Map;
 
 import javax.script.ScriptException;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.automation.Action;
 import org.openhab.core.automation.handler.ActionHandler;
 import org.openhab.core.automation.module.script.ScriptEngineManager;
@@ -26,13 +28,13 @@ import org.slf4j.LoggerFactory;
 /**
  * This handler can execute script actions.
  *
- * @author Kai Kreuzer - Initial contribution and API
- * @author Simon Merschjohann
- *
+ * @author Kai Kreuzer - Initial contribution
+ * @author Simon Merschjohann - Initial contribution
  */
+@NonNullByDefault
 public class ScriptActionHandler extends AbstractScriptModuleHandler<Action> implements ActionHandler {
 
-    public static final String SCRIPT_ACTION_ID = "script.ScriptAction";
+    public static final String TYPE_ID = "script.ScriptAction";
 
     private final Logger logger = LoggerFactory.getLogger(ScriptActionHandler.class);
 
@@ -51,8 +53,8 @@ public class ScriptActionHandler extends AbstractScriptModuleHandler<Action> imp
     }
 
     @Override
-    public Map<String, Object> execute(final Map<String, Object> context) {
-        HashMap<String, Object> resultMap = new HashMap<String, Object>();
+    public @Nullable Map<String, Object> execute(final Map<String, Object> context) {
+        Map<String, Object> resultMap = new HashMap<>();
 
         getScriptEngine().ifPresent(scriptEngine -> {
             setExecutionContext(scriptEngine, context);
@@ -60,7 +62,8 @@ public class ScriptActionHandler extends AbstractScriptModuleHandler<Action> imp
                 Object result = scriptEngine.eval(script);
                 resultMap.put("result", result);
             } catch (ScriptException e) {
-                logger.error("Script execution failed: {}", e.getMessage());
+                logger.error("Script execution of rule with UID '{}' failed: {}", ruleUID, e.getMessage(),
+                        logger.isDebugEnabled() ? e : null);
             }
         });
 

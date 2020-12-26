@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -13,30 +13,19 @@
 package org.openhab.core.automation.module.timer.internal;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
-import org.eclipse.smarthome.core.events.Event;
-import org.eclipse.smarthome.core.events.EventFilter;
-import org.eclipse.smarthome.core.events.EventSubscriber;
-import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.items.ItemProvider;
-import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
-import org.eclipse.smarthome.core.library.items.SwitchItem;
-import org.eclipse.smarthome.test.java.JavaOSGiTest;
-import org.eclipse.smarthome.test.storage.VolatileStorageService;
-import org.junit.Before;
-import org.junit.Test;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openhab.core.automation.Action;
 import org.openhab.core.automation.Rule;
 import org.openhab.core.automation.RuleManager;
@@ -45,34 +34,46 @@ import org.openhab.core.automation.RuleStatus;
 import org.openhab.core.automation.RuleStatusDetail;
 import org.openhab.core.automation.RuleStatusInfo;
 import org.openhab.core.automation.Trigger;
+import org.openhab.core.automation.internal.RuleEngineImpl;
 import org.openhab.core.automation.internal.module.handler.GenericCronTriggerHandler;
 import org.openhab.core.automation.type.ModuleTypeRegistry;
 import org.openhab.core.automation.util.ModuleBuilder;
 import org.openhab.core.automation.util.RuleBuilder;
+import org.openhab.core.common.registry.ProviderChangeListener;
+import org.openhab.core.config.core.Configuration;
+import org.openhab.core.events.Event;
+import org.openhab.core.events.EventFilter;
+import org.openhab.core.events.EventSubscriber;
+import org.openhab.core.items.Item;
+import org.openhab.core.items.ItemProvider;
+import org.openhab.core.items.events.ItemCommandEvent;
+import org.openhab.core.library.items.SwitchItem;
+import org.openhab.core.service.ReadyMarker;
+import org.openhab.core.test.java.JavaOSGiTest;
+import org.openhab.core.test.storage.VolatileStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * this tests the Timer Trigger
  *
- * @author Christoph Knauf - initial contribution
+ * @author Christoph Knauf - Initial contribution
  * @author Markus Rathgeb - fix module timer test
  * @author Kai Kreuzer - migrated to Java
- *
  */
 public class RuntimeRuleTest extends JavaOSGiTest {
 
-    final Logger logger = LoggerFactory.getLogger(RuntimeRuleTest.class);
-    VolatileStorageService volatileStorageService = new VolatileStorageService();
-    RuleRegistry ruleRegistry;
-    RuleManager ruleEngine;
+    private final Logger logger = LoggerFactory.getLogger(RuntimeRuleTest.class);
+    private VolatileStorageService volatileStorageService = new VolatileStorageService();
+    private RuleRegistry ruleRegistry;
+    private RuleManager ruleEngine;
 
     public RuntimeRuleTest() {
     }
 
-    @Before
+    @BeforeEach
     public void before() {
-        ItemProvider itemProvider = new TestItemProvider(Collections.singleton(new SwitchItem("myLampItem")));
+        ItemProvider itemProvider = new TestItemProvider(Set.of(new SwitchItem("myLampItem")));
         registerService(itemProvider);
         registerService(volatileStorageService);
         waitForAssert(() -> {
@@ -83,6 +84,9 @@ public class RuntimeRuleTest extends JavaOSGiTest {
             ruleEngine = getService(RuleManager.class);
             assertThat("RuleManager service not found", ruleEngine, is(notNullValue()));
         }, 3000, 100);
+
+        // start rule engine
+        ((RuleEngineImpl) getService(RuleManager.class)).onReadyMarkerAdded(new ReadyMarker("", ""));
     }
 
     @Test
@@ -102,8 +106,8 @@ public class RuntimeRuleTest extends JavaOSGiTest {
         String testExpression = "* * * * * ?";
 
         ;
-        Configuration triggerConfig = new Configuration(Collections.singletonMap("cronExpression", testExpression));
-        List<Trigger> triggers = Collections.singletonList(ModuleBuilder.createTrigger().withId("MyTimerTrigger")
+        Configuration triggerConfig = new Configuration(Map.of("cronExpression", testExpression));
+        List<Trigger> triggers = List.of(ModuleBuilder.createTrigger().withId("MyTimerTrigger")
                 .withTypeUID(GenericCronTriggerHandler.MODULE_TYPE_ID).withConfiguration(triggerConfig).build());
 
         Rule rule = RuleBuilder.create("MyRule" + new Random().nextInt()).withTriggers(triggers)
@@ -131,8 +135,8 @@ public class RuntimeRuleTest extends JavaOSGiTest {
                 final RuleStatusInfo ruleStatus = ruleEngine.getStatusInfo(rule.getUID());
                 logger.info("Rule status (should be IDLE or RUNNING): {}", ruleStatus);
                 boolean allFine;
-                if (ruleStatus.getStatus().equals(RuleStatus.IDLE)
-                        || ruleStatus.getStatus().equals(RuleStatus.RUNNING)) {
+                if (RuleStatus.IDLE.equals(ruleStatus.getStatus())
+                        || RuleStatus.RUNNING.equals(ruleStatus.getStatus())) {
                     allFine = true;
                 } else {
                     allFine = false;
@@ -158,7 +162,7 @@ public class RuntimeRuleTest extends JavaOSGiTest {
 
             @Override
             public java.util.Set<String> getSubscribedEventTypes() {
-                return Collections.singleton(ItemCommandEvent.TYPE);
+                return Set.of(ItemCommandEvent.TYPE);
             }
 
             @Override
@@ -174,15 +178,15 @@ public class RuntimeRuleTest extends JavaOSGiTest {
         logger.info("Create rule");
         String testExpression = "* * * * * ?";
 
-        Configuration triggerConfig = new Configuration(Collections.singletonMap("cronExpression", testExpression));
-        List<Trigger> triggers = Collections.singletonList(ModuleBuilder.createTrigger().withId("MyTimerTrigger")
+        Configuration triggerConfig = new Configuration(Map.of("cronExpression", testExpression));
+        List<Trigger> triggers = List.of(ModuleBuilder.createTrigger().withId("MyTimerTrigger")
                 .withTypeUID(GenericCronTriggerHandler.MODULE_TYPE_ID).withConfiguration(triggerConfig).build());
 
         Map<String, Object> cfgEntries = new HashMap<>();
         cfgEntries.put("itemName", testItemName);
         cfgEntries.put("command", "ON");
         Configuration actionConfig = new Configuration(cfgEntries);
-        List<Action> actions = Collections.singletonList(ModuleBuilder.createAction().withId("MyItemPostCommandAction")
+        List<Action> actions = List.of(ModuleBuilder.createAction().withId("MyItemPostCommandAction")
                 .withTypeUID("core.ItemCommandAction").withConfiguration(actionConfig).build());
 
         Rule rule = RuleBuilder.create("MyRule" + new Random().nextInt()).withTriggers(triggers).withActions(actions)
@@ -206,6 +210,7 @@ public class RuntimeRuleTest extends JavaOSGiTest {
         });
     }
 
+    @NonNullByDefault
     class TestItemProvider implements ItemProvider {
         private final Collection<Item> items;
 
@@ -219,12 +224,11 @@ public class RuntimeRuleTest extends JavaOSGiTest {
         }
 
         @Override
-        public void addProviderChangeListener(@NonNull ProviderChangeListener<@NonNull Item> listener) {
+        public void addProviderChangeListener(ProviderChangeListener<Item> listener) {
         }
 
         @Override
-        public void removeProviderChangeListener(@NonNull ProviderChangeListener<@NonNull Item> listener) {
+        public void removeProviderChangeListener(ProviderChangeListener<Item> listener) {
         }
     }
-
 }

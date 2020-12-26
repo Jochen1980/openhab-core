@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -23,16 +23,14 @@ import org.openhab.core.automation.RuleStatus;
 import org.openhab.core.automation.RuleStatusInfo;
 import org.openhab.core.automation.Trigger;
 import org.openhab.core.automation.handler.TriggerHandlerCallback;
+import org.openhab.core.common.NamedThreadFactory;
 
 /**
  * This class is implementation of {@link TriggerHandlerCallback} used by the {@link Trigger}s to notify rule engine
- * about
- * appearing of new triggered data. There is one and only one {@link TriggerHandlerCallback} per RuleImpl and it is used
- * by
- * all
- * rule's {@link Trigger}s.
+ * about appearing of new triggered data. There is one and only one {@link TriggerHandlerCallback} per Rule and
+ * it is used by all rule's {@link Trigger}s.
  *
- * @author Yordan Mihaylov - Initial Contribution
+ * @author Yordan Mihaylov - Initial contribution
  * @author Kai Kreuzer - improved stability
  */
 public class TriggerHandlerCallbackImpl implements TriggerHandlerCallback {
@@ -48,7 +46,7 @@ public class TriggerHandlerCallbackImpl implements TriggerHandlerCallback {
     protected TriggerHandlerCallbackImpl(RuleEngineImpl re, String ruleUID) {
         this.re = re;
         this.ruleUID = ruleUID;
-        executor = Executors.newSingleThreadExecutor();
+        executor = Executors.newSingleThreadExecutor(new NamedThreadFactory("rule-" + ruleUID));
     }
 
     @Override
@@ -131,5 +129,4 @@ public class TriggerHandlerCallbackImpl implements TriggerHandlerCallback {
     public void runNow(String uid, boolean considerConditions, Map<String, Object> context) {
         re.runNow(uid, considerConditions, context);
     }
-
 }

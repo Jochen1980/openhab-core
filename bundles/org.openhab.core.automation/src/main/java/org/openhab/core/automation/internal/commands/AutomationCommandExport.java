@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -28,8 +28,7 @@ import org.openhab.core.automation.parser.Parser;
  * <li>{@link AutomationCommands#EXPORT_RULES}
  * </ul>
  *
- * @author Ana Dimova - Initial Contribution
- *
+ * @author Ana Dimova - Initial contribution
  */
 public class AutomationCommandExport extends AutomationCommand {
 
@@ -164,9 +163,9 @@ public class AutomationCommandExport extends AutomationCommand {
             if (null == parameterValues[i]) {
                 continue;
             }
-            if (parameterValues[i].equals(OPTION_ST)) {
+            if (OPTION_ST.equals(parameterValues[i])) {
                 st = true;
-            } else if (parameterValues[i].equalsIgnoreCase(OPTION_P)) {
+            } else if (OPTION_P.equalsIgnoreCase(parameterValues[i])) {
                 i++;
                 if (i >= parameterValues.length) {
                     return String.format("The option [%s] should be followed by value for the parser type.", OPTION_P);
@@ -188,5 +187,4 @@ public class AutomationCommandExport extends AutomationCommand {
         }
         return SUCCESS;
     }
-
 }

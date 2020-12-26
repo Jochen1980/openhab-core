@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -21,8 +21,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.eclipse.smarthome.config.core.ConfigConstants;
-import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.core.OpenHAB;
 import org.openhab.core.automation.Action;
 import org.openhab.core.automation.AnnotatedActions;
 import org.openhab.core.automation.Module;
@@ -36,8 +37,10 @@ import org.openhab.core.automation.module.provider.i18n.ModuleTypeI18nService;
 import org.openhab.core.automation.type.ActionType;
 import org.openhab.core.automation.type.ModuleType;
 import org.openhab.core.automation.type.ModuleTypeProvider;
+import org.openhab.core.common.registry.ProviderChangeListener;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
@@ -48,22 +51,27 @@ import org.osgi.service.component.annotations.ReferencePolicy;
  * This provider parses annotated {@link AnnotatedActions}s and creates action module types, as well as their handlers
  * from them
  *
- * @author Stefan Triller - initial contribution
- *
+ * @author Stefan Triller - Initial contribution
  */
+@NonNullByDefault
 @Component(service = { ModuleTypeProvider.class, ModuleHandlerFactory.class })
 public class AnnotatedActionModuleTypeProvider extends BaseModuleHandlerFactory implements ModuleTypeProvider {
 
     private final Collection<ProviderChangeListener<ModuleType>> changeListeners = ConcurrentHashMap.newKeySet();
-    private Map<String, Set<ModuleInformation>> moduleInformation = new ConcurrentHashMap<>();
+    private final Map<String, Set<ModuleInformation>> moduleInformation = new ConcurrentHashMap<>();
     private final AnnotationActionModuleTypeHelper helper = new AnnotationActionModuleTypeHelper();
 
-    private ModuleTypeI18nService moduleTypeI18nService;
+    private final ModuleTypeI18nService moduleTypeI18nService;
+
+    @Activate
+    public AnnotatedActionModuleTypeProvider(final @Reference ModuleTypeI18nService moduleTypeI18nService) {
+        this.moduleTypeI18nService = moduleTypeI18nService;
+    }
 
     @Override
     @Deactivate
     protected void deactivate() {
-        this.moduleInformation = null;
+        moduleInformation.clear();
     }
 
     @Override
@@ -80,7 +88,7 @@ public class AnnotatedActionModuleTypeProvider extends BaseModuleHandlerFactory 
     public Collection<ModuleType> getAll() {
         Collection<ModuleType> moduleTypes = new ArrayList<>();
         for (String moduleUID : moduleInformation.keySet()) {
-            ModuleType mt = helper.buildModuleType(moduleUID, this.moduleInformation);
+            ModuleType mt = helper.buildModuleType(moduleUID, moduleInformation);
             if (mt != null) {
                 moduleTypes.add(mt);
             }
@@ -90,13 +98,13 @@ public class AnnotatedActionModuleTypeProvider extends BaseModuleHandlerFactory 
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends ModuleType> T getModuleType(String UID, Locale locale) {
+    public <T extends ModuleType> T getModuleType(String UID, @Nullable Locale locale) {
         return (T) localizeModuleType(UID, locale);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends ModuleType> Collection<T> getModuleTypes(Locale locale) {
+    public <T extends ModuleType> Collection<T> getModuleTypes(@Nullable Locale locale) {
         List<T> result = new ArrayList<>();
         for (Entry<String, Set<ModuleInformation>> entry : moduleInformation.entrySet()) {
             ModuleType localizedModuleType = localizeModuleType(entry.getKey(), locale);
@@ -107,7 +115,7 @@ public class AnnotatedActionModuleTypeProvider extends BaseModuleHandlerFactory 
         return result;
     }
 
-    private ModuleType localizeModuleType(String uid, Locale locale) {
+    private @Nullable ModuleType localizeModuleType(String uid, @Nullable Locale locale) {
         Set<ModuleInformation> mis = moduleInformation.get(uid);
         if (mis != null && !mis.isEmpty()) {
             ModuleInformation mi = mis.iterator().next();
@@ -131,17 +139,17 @@ public class AnnotatedActionModuleTypeProvider extends BaseModuleHandlerFactory 
             mi.setConfigName(configName);
 
             ModuleType oldType = null;
-            if (this.moduleInformation.containsKey(mi.getUID())) {
-                oldType = helper.buildModuleType(mi.getUID(), this.moduleInformation);
-                Set<ModuleInformation> availableModuleConfigs = this.moduleInformation.get(mi.getUID());
+            if (moduleInformation.containsKey(mi.getUID())) {
+                oldType = helper.buildModuleType(mi.getUID(), moduleInformation);
+                Set<ModuleInformation> availableModuleConfigs = moduleInformation.get(mi.getUID());
                 availableModuleConfigs.add(mi);
             } else {
                 Set<ModuleInformation> configs = ConcurrentHashMap.newKeySet();
                 configs.add(mi);
-                this.moduleInformation.put(mi.getUID(), configs);
+                moduleInformation.put(mi.getUID(), configs);
             }
 
-            ModuleType mt = helper.buildModuleType(mi.getUID(), this.moduleInformation);
+            ModuleType mt = helper.buildModuleType(mi.getUID(), moduleInformation);
             if (mt != null) {
                 for (ProviderChangeListener<ModuleType> l : changeListeners) {
                     if (oldType != null) {
@@ -161,31 +169,34 @@ public class AnnotatedActionModuleTypeProvider extends BaseModuleHandlerFactory 
 
         for (ModuleInformation mi : moduleInformations) {
             mi.setConfigName(configName);
-            ModuleType oldType = null;
 
-            Set<ModuleInformation> availableModuleConfigs = this.moduleInformation.get(mi.getUID());
+            ModuleType oldType = null;
+            Set<ModuleInformation> availableModuleConfigs = moduleInformation.get(mi.getUID());
             if (availableModuleConfigs != null) {
                 if (availableModuleConfigs.size() > 1) {
-                    oldType = helper.buildModuleType(mi.getUID(), this.moduleInformation);
+                    oldType = helper.buildModuleType(mi.getUID(), moduleInformation);
                     availableModuleConfigs.remove(mi);
                 } else {
-                    this.moduleInformation.remove(mi.getUID());
+                    moduleInformation.remove(mi.getUID());
                 }
 
-                ModuleType mt = helper.buildModuleType(mi.getUID(), this.moduleInformation);
-                for (ProviderChangeListener<ModuleType> l : changeListeners) {
-                    if (oldType != null) {
-                        l.updated(this, oldType, mt);
-                    } else {
-                        l.removed(this, mt);
+                ModuleType mt = helper.buildModuleType(mi.getUID(), moduleInformation);
+                // localize moduletype -> remove from map
+                if (mt != null) {
+                    for (ProviderChangeListener<ModuleType> l : changeListeners) {
+                        if (oldType != null) {
+                            l.updated(this, oldType, mt);
+                        } else {
+                            l.removed(this, mt);
+                        }
                     }
                 }
             }
         }
     }
 
-    private String getConfigNameFromService(Map<String, Object> properties) {
-        Object o = properties.get(ConfigConstants.SERVICE_CONTEXT);
+    private @Nullable String getConfigNameFromService(Map<String, Object> properties) {
+        Object o = properties.get(OpenHAB.SERVICE_CONTEXT);
         String configName = null;
         if (o instanceof String) {
             configName = (String) o;
@@ -193,38 +204,25 @@ public class AnnotatedActionModuleTypeProvider extends BaseModuleHandlerFactory 
         return configName;
     }
 
-    // HandlerFactory:
-
     @Override
     public Collection<String> getTypes() {
         return moduleInformation.keySet();
     }
 
     @Override
-    protected ModuleHandler internalCreate(Module module, String ruleUID) {
+    protected @Nullable ModuleHandler internalCreate(Module module, String ruleUID) {
         if (module instanceof Action) {
             Action actionModule = (Action) module;
-
             if (moduleInformation.containsKey(actionModule.getTypeUID())) {
                 ModuleInformation finalMI = helper.getModuleInformationForIdentifier(actionModule, moduleInformation,
                         false);
-
                 if (finalMI != null) {
-                    ActionType moduleType = helper.buildModuleType(module.getTypeUID(), this.moduleInformation);
+                    ActionType moduleType = helper.buildModuleType(module.getTypeUID(), moduleInformation);
                     return new AnnotationActionHandler(actionModule, moduleType, finalMI.getMethod(),
                             finalMI.getActionProvider());
                 }
             }
         }
         return null;
-    }
-
-    @Reference
-    protected void setModuleTypeI18nService(ModuleTypeI18nService moduleTypeI18nService) {
-        this.moduleTypeI18nService = moduleTypeI18nService;
-    }
-
-    protected void unsetModuleTypeI18nService(ModuleTypeI18nService moduleTypeI18nService) {
-        this.moduleTypeI18nService = null;
     }
 }

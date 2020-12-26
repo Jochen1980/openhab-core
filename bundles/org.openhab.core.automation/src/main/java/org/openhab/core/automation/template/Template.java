@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -16,8 +16,8 @@ import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.core.common.registry.Identifiable;
 import org.openhab.core.automation.Visibility;
+import org.openhab.core.common.registry.Identifiable;
 
 /**
  * The templates define types of shared, ready to use definitions of automation objects, which
@@ -27,9 +27,9 @@ import org.openhab.core.automation.Visibility;
  * <p>
  * Templates can have {@code tags} - non-hierarchical keywords or terms for describing them.
  *
- * @author Yordan Mihaylov - Initial Contribution
- * @author Ana Dimova - Initial Contribution
- * @author Vasil Ilchev - Initial Contribution
+ * @author Yordan Mihaylov - Initial contribution
+ * @author Ana Dimova - Initial contribution
+ * @author Vasil Ilchev - Initial contribution
  */
 @NonNullByDefault
 public interface Template extends Identifiable<String> {
@@ -72,5 +72,4 @@ public interface Template extends Identifiable<String> {
      * @return the visibility of the Template.
      */
     public Visibility getVisibility();
-
 }

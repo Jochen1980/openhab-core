@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -19,13 +19,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -34,60 +39,69 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.smarthome.config.core.ConfigConstants;
-import org.eclipse.smarthome.core.service.AbstractWatchService;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.core.OpenHAB;
 import org.openhab.core.automation.module.script.ScriptEngineContainer;
 import org.openhab.core.automation.module.script.ScriptEngineManager;
+import org.openhab.core.common.NamedThreadFactory;
+import org.openhab.core.service.AbstractWatchService;
+import org.openhab.core.service.ReadyMarker;
+import org.openhab.core.service.ReadyMarkerFilter;
+import org.openhab.core.service.ReadyService;
+import org.openhab.core.service.ReadyService.ReadyTracker;
+import org.openhab.core.service.StartLevelService;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 /**
  * The {@link ScriptFileWatcher} watches the jsr223 directory for files. If a new/modified file is detected, the script
  * is read and passed to the {@link ScriptEngineManager}.
  *
- * @author Simon Merschjohann - initial contribution
+ * @author Simon Merschjohann - Initial contribution
  * @author Kai Kreuzer - improved logging and removed thread pool
- *
  */
 @Component(immediate = true)
-public class ScriptFileWatcher extends AbstractWatchService {
+public class ScriptFileWatcher extends AbstractWatchService implements ReadyTracker {
+
+    private static final Set<String> EXCLUDED_FILE_EXTENSIONS = new HashSet<>(
+            Arrays.asList("txt", "old", "example", "backup", "md", "swp", "tmp", "bak"));
     private static final String FILE_DIRECTORY = "automation" + File.separator + "jsr223";
-    private static final long INITIAL_DELAY = 25;
     private static final long RECHECK_INTERVAL = 20;
 
-    private final long earliestStart = System.currentTimeMillis() + INITIAL_DELAY * 1000;
+    private boolean started = false;
 
-    private ScriptEngineManager manager;
-    ScheduledExecutorService scheduler;
+    private final ScriptEngineManager manager;
+    private final ReadyService readyService;
+    private @Nullable ScheduledExecutorService scheduler;
 
     private final Map<String, Set<URL>> urlsByScriptExtension = new ConcurrentHashMap<>();
     private final Set<URL> loaded = new HashSet<>();
 
-    public ScriptFileWatcher() {
-        super(ConfigConstants.getConfigFolder() + File.separator + FILE_DIRECTORY);
-    }
-
-    @Reference
-    public void setScriptEngineManager(ScriptEngineManager manager) {
+    @Activate
+    public ScriptFileWatcher(final @Reference ScriptEngineManager manager, final @Reference ReadyService readyService) {
+        super(OpenHAB.getConfigFolder() + File.separator + FILE_DIRECTORY);
         this.manager = manager;
+        this.readyService = readyService;
     }
 
-    public void unsetScriptEngineManager(ScriptEngineManager manager) {
-        this.manager = null;
-    }
-
+    @Activate
     @Override
     public void activate() {
         super.activate();
-        importResources(new File(pathToWatch));
-        scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.scheduleWithFixedDelay(this::checkFiles, INITIAL_DELAY, RECHECK_INTERVAL, TimeUnit.SECONDS);
+        readyService.registerTracker(this, new ReadyMarkerFilter().withType(StartLevelService.STARTLEVEL_MARKER_TYPE)
+                .withIdentifier(Integer.toString(StartLevelService.STARTLEVEL_MODEL)));
     }
 
+    @Deactivate
     @Override
     public void deactivate() {
-        if (scheduler != null) {
-            scheduler.shutdownNow();
+        readyService.unregisterTracker(this);
+        ScheduledExecutorService localScheduler = scheduler;
+        if (localScheduler != null) {
+            localScheduler.shutdownNow();
             scheduler = null;
         }
         super.deactivate();
@@ -135,12 +149,12 @@ public class ScriptFileWatcher extends AbstractWatchService {
         if (!file.isHidden()) {
             try {
                 URL fileUrl = file.toURI().toURL();
-                if (kind.equals(ENTRY_DELETE)) {
-                    this.removeFile(fileUrl);
+                if (ENTRY_DELETE.equals(kind)) {
+                    removeFile(fileUrl);
                 }
 
-                if (file.canRead() && (kind.equals(ENTRY_CREATE) || kind.equals(ENTRY_MODIFY))) {
-                    this.importFile(fileUrl);
+                if (file.canRead() && (ENTRY_CREATE.equals(kind) || ENTRY_MODIFY.equals(kind))) {
+                    importFile(fileUrl);
                 }
             } catch (MalformedURLException e) {
                 logger.error("malformed", e);
@@ -155,18 +169,19 @@ public class ScriptFileWatcher extends AbstractWatchService {
     }
 
     private synchronized void importFile(URL url) {
-        String fileName = getFileName(url);
+        String fileName = url.getFile();
         if (loaded.contains(url)) {
             this.removeFile(url); // if already loaded, remove first
         }
 
         String scriptType = getScriptType(url);
         if (scriptType != null) {
-            if (System.currentTimeMillis() < earliestStart) {
+            if (!started) {
                 enqueueUrl(url, scriptType);
             } else {
                 if (manager.isSupported(scriptType)) {
-                    try (InputStreamReader reader = new InputStreamReader(new BufferedInputStream(url.openStream()))) {
+                    try (InputStreamReader reader = new InputStreamReader(new BufferedInputStream(url.openStream()),
+                            StandardCharsets.UTF_8)) {
                         logger.info("Loading script '{}'", fileName);
 
                         ScriptEngineContainer container = manager.createScriptEngine(scriptType,
@@ -184,27 +199,17 @@ public class ScriptFileWatcher extends AbstractWatchService {
                     }
                 } else {
                     enqueueUrl(url, scriptType);
-
                     logger.info("ScriptEngine for {} not available", scriptType);
                 }
             }
         }
     }
 
-    private String getFileName(URL url) {
-        String fileName = url.getFile();
-        String parentPath = FILE_DIRECTORY.replace('\\', '/');
-        if (fileName.contains(parentPath)) {
-            fileName = fileName.substring(fileName.lastIndexOf(parentPath) + parentPath.length() + 1);
-        }
-        return fileName;
-    }
-
     private void enqueueUrl(URL url, String scriptType) {
         synchronized (urlsByScriptExtension) {
             Set<URL> set = urlsByScriptExtension.get(scriptType);
             if (set == null) {
-                set = new HashSet<URL>();
+                set = new HashSet<>();
                 urlsByScriptExtension.put(scriptType, set);
             }
             set.add(url);
@@ -214,7 +219,6 @@ public class ScriptFileWatcher extends AbstractWatchService {
 
     private void dequeueUrl(URL url) {
         String scriptType = getScriptType(url);
-
         if (scriptType != null) {
             synchronized (urlsByScriptExtension) {
                 Set<URL> set = urlsByScriptExtension.get(scriptType);
@@ -229,16 +233,16 @@ public class ScriptFileWatcher extends AbstractWatchService {
         }
     }
 
-    private String getScriptType(URL url) {
+    private @Nullable String getScriptType(URL url) {
         String fileName = url.getPath();
-        int idx = fileName.lastIndexOf(".");
-        if (idx == -1) {
+        int index = fileName.lastIndexOf(".");
+        if (index == -1) {
             return null;
         }
-        String fileExtension = fileName.substring(idx + 1);
+        String fileExtension = fileName.substring(index + 1);
 
         // ignore known file extensions for "temp" files
-        if (fileExtension.equals("txt") || fileExtension.endsWith("~") || fileExtension.endsWith("swp")) {
+        if (EXCLUDED_FILE_EXTENSIONS.contains(fileExtension) || fileExtension.endsWith("~")) {
             return null;
         }
         return fileExtension;
@@ -252,14 +256,32 @@ public class ScriptFileWatcher extends AbstractWatchService {
         SortedSet<URL> reimportUrls = new TreeSet<URL>(new Comparator<URL>() {
             @Override
             public int compare(URL o1, URL o2) {
-                String f1 = o1.getPath();
-                String f2 = o2.getPath();
-                return String.CASE_INSENSITIVE_ORDER.compare(f1, f2);
+                try {
+                    Path path1 = Paths.get(o1.toURI());
+                    String name1 = path1.getFileName().toString();
+                    logger.trace("o1 [{}], path1 [{}], name1 [{}]", o1, path1, name1);
+
+                    Path path2 = Paths.get(o2.toURI());
+                    String name2 = path2.getFileName().toString();
+                    logger.trace("o2 [{}], path2 [{}], name2 [{}]", o2, path2, name2);
+
+                    int nameCompare = name1.compareToIgnoreCase(name2);
+                    if (nameCompare != 0) {
+                        return nameCompare;
+                    } else {
+                        int pathCompare = path1.getParent().toString()
+                                .compareToIgnoreCase(path2.getParent().toString());
+                        return pathCompare;
+                    }
+                } catch (URISyntaxException e) {
+                    logger.error("URI syntax exception", e);
+                    return 0;
+                }
             }
         });
 
         synchronized (urlsByScriptExtension) {
-            HashSet<String> newlySupported = new HashSet<>();
+            Set<String> newlySupported = new HashSet<>();
             for (String key : urlsByScriptExtension.keySet()) {
                 if (manager.isSupported(key)) {
                     newlySupported.add(key);
@@ -267,12 +289,28 @@ public class ScriptFileWatcher extends AbstractWatchService {
             }
 
             for (String key : newlySupported) {
-                reimportUrls.addAll(urlsByScriptExtension.remove(key));
+                reimportUrls.addAll(Objects.requireNonNullElse(urlsByScriptExtension.remove(key), Set.of()));
             }
         }
 
         for (URL url : reimportUrls) {
             importFile(url);
         }
+    }
+
+    @Override
+    public void onReadyMarkerAdded(@NonNull ReadyMarker readyMarker) {
+        started = true;
+
+        ScheduledExecutorService localScheduler = Executors
+                .newSingleThreadScheduledExecutor(new NamedThreadFactory("scriptwatcher"));
+        scheduler = localScheduler;
+        localScheduler.submit(() -> importResources(new File(pathToWatch)));
+        localScheduler.scheduleWithFixedDelay(this::checkFiles, RECHECK_INTERVAL, RECHECK_INTERVAL, TimeUnit.SECONDS);
+    }
+
+    @Override
+    public void onReadyMarkerRemoved(@NonNull ReadyMarker readyMarker) {
+        started = false;
     }
 }

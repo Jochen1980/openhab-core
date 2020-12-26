@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -22,8 +22,6 @@ import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
-import org.eclipse.smarthome.config.core.Configuration;
 import org.openhab.core.automation.Action;
 import org.openhab.core.automation.Condition;
 import org.openhab.core.automation.Rule;
@@ -31,26 +29,27 @@ import org.openhab.core.automation.Trigger;
 import org.openhab.core.automation.Visibility;
 import org.openhab.core.automation.internal.RuleImpl;
 import org.openhab.core.automation.template.RuleTemplate;
+import org.openhab.core.config.core.ConfigDescriptionParameter;
+import org.openhab.core.config.core.Configuration;
 
 /**
  * This class allows the easy construction of a {@link Rule} instance using the builder pattern.
  *
- * @author Kai Kreuzer - Initial contribution and API
- *
+ * @author Kai Kreuzer - Initial contribution
  */
 @NonNullByDefault
 public class RuleBuilder {
 
-    private @NonNullByDefault({}) List<Trigger> triggers;
-    private @NonNullByDefault({}) List<Condition> conditions;
-    private @NonNullByDefault({}) List<Action> actions;
-    private @NonNullByDefault({}) Configuration configuration;
-    private @NonNullByDefault({}) List<ConfigDescriptionParameter> configDescriptions;
+    private List<Trigger> triggers;
+    private List<Condition> conditions;
+    private List<Action> actions;
+    private Configuration configuration;
+    private List<ConfigDescriptionParameter> configDescriptions;
     private @Nullable String templateUID;
-    private @NonNullByDefault({}) final String uid;
+    private final String uid;
     private @Nullable String name;
-    private @NonNullByDefault({}) Set<String> tags;
-    private @NonNullByDefault({}) Visibility visibility;
+    private Set<String> tags;
+    private @Nullable Visibility visibility;
     private @Nullable String description;
 
     protected RuleBuilder(Rule rule) {
@@ -113,7 +112,7 @@ public class RuleBuilder {
 
     public RuleBuilder withTriggers(@Nullable List<? extends Trigger> triggers) {
         if (triggers != null) {
-            ArrayList<Trigger> triggerList = new ArrayList<>(triggers.size());
+            List<Trigger> triggerList = new ArrayList<>(triggers.size());
             triggers.forEach(t -> triggerList.add(TriggerBuilder.create(t).build()));
             this.triggers = triggerList;
         }
@@ -126,7 +125,7 @@ public class RuleBuilder {
 
     public RuleBuilder withConditions(@Nullable List<? extends Condition> conditions) {
         if (conditions != null) {
-            ArrayList<Condition> conditionList = new ArrayList<>(conditions.size());
+            List<Condition> conditionList = new ArrayList<>(conditions.size());
             conditions.forEach(c -> conditionList.add(ConditionBuilder.create(c).build()));
             this.conditions = conditionList;
         }
@@ -139,7 +138,7 @@ public class RuleBuilder {
 
     public RuleBuilder withActions(@Nullable List<? extends Action> actions) {
         if (actions != null) {
-            ArrayList<Action> actionList = new ArrayList<>(actions.size());
+            List<Action> actionList = new ArrayList<>(actions.size());
             actions.forEach(a -> actionList.add(ActionBuilder.create(a).build()));
             this.actions = actionList;
         }
@@ -170,5 +169,4 @@ public class RuleBuilder {
         return new RuleImpl(uid, name, description, tags, triggers, conditions, actions, configDescriptions,
                 configuration, templateUID, visibility);
     }
-
 }

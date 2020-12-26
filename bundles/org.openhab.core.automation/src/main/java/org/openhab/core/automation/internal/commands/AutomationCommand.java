@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -12,14 +12,16 @@
  */
 package org.openhab.core.automation.internal.commands;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * This class is base for all automation commands. It defines common functionality for an automation command. Each class
  * of commands is responsible for a group of commands, that are equivalent but each of them is related to a different
  * provider.
  *
- * @author Ana Dimova - Initial Contribution
- *
+ * @author Ana Dimova - Initial contribution
  */
+@NonNullByDefault
 public abstract class AutomationCommand {
 
     /**
@@ -127,5 +129,4 @@ public abstract class AutomationCommand {
      *         parsing the parameters and options.
      */
     protected abstract String parseOptionsAndParameters(String[] parameterValues);
-
 }

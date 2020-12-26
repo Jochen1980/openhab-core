@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -14,15 +14,12 @@ package org.openhab.core.automation.internal;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
-import org.eclipse.smarthome.config.core.Configuration;
 import org.openhab.core.automation.Action;
 import org.openhab.core.automation.Condition;
 import org.openhab.core.automation.Module;
@@ -31,28 +28,30 @@ import org.openhab.core.automation.RuleRegistry;
 import org.openhab.core.automation.Trigger;
 import org.openhab.core.automation.Visibility;
 import org.openhab.core.automation.template.RuleTemplate;
+import org.openhab.core.config.core.ConfigDescriptionParameter;
+import org.openhab.core.config.core.Configuration;
 
 /**
  * This is the internal implementation of a {@link Rule}, which comes with full getters and setters.
  *
- * @author Yordan Mihaylov - Initial Contribution
- * @author Ana Dimova - Initial Contribution
- * @author Vasil Ilchev - Initial Contribution
+ * @author Yordan Mihaylov - Initial contribution
+ * @author Ana Dimova - Initial contribution
+ * @author Vasil Ilchev - Initial contribution
  * @author Kai Kreuzer - Introduced transient status and made it implement the Rule interface
  */
 @NonNullByDefault
 public class RuleImpl implements Rule {
 
-    protected @NonNullByDefault({}) List<Trigger> triggers;
-    protected @NonNullByDefault({}) List<Condition> conditions;
-    protected @NonNullByDefault({}) List<Action> actions;
-    protected @NonNullByDefault({}) Configuration configuration;
-    protected @NonNullByDefault({}) List<ConfigDescriptionParameter> configDescriptions;
+    protected List<Trigger> triggers;
+    protected List<Condition> conditions;
+    protected List<Action> actions;
+    protected Configuration configuration;
+    protected List<ConfigDescriptionParameter> configDescriptions;
     protected @Nullable String templateUID;
-    protected @NonNullByDefault({}) String uid;
+    protected String uid;
     protected @Nullable String name;
-    protected @NonNullByDefault({}) Set<String> tags;
-    protected @NonNullByDefault({}) Visibility visibility;
+    protected Set<String> tags;
+    protected Visibility visibility;
     protected @Nullable String description;
 
     /**
@@ -95,15 +94,11 @@ public class RuleImpl implements Rule {
         this.uid = uid == null ? UUID.randomUUID().toString() : uid;
         this.name = name;
         this.description = description;
-        this.tags = tags == null ? Collections.emptySet() : Collections.unmodifiableSet(new HashSet<>(tags));
-        this.triggers = triggers == null ? Collections.emptyList()
-                : Collections.unmodifiableList(new ArrayList<>(triggers));
-        this.conditions = conditions == null ? Collections.emptyList()
-                : Collections.unmodifiableList(new ArrayList<>(conditions));
-        this.actions = actions == null ? Collections.emptyList()
-                : Collections.unmodifiableList(new ArrayList<>(actions));
-        this.configDescriptions = configDescriptions == null ? Collections.emptyList()
-                : Collections.unmodifiableList(new ArrayList<>(configDescriptions));
+        this.tags = tags == null ? Set.of() : Set.copyOf(tags);
+        this.triggers = triggers == null ? List.of() : List.copyOf(triggers);
+        this.conditions = conditions == null ? List.of() : List.copyOf(conditions);
+        this.actions = actions == null ? List.of() : List.copyOf(actions);
+        this.configDescriptions = configDescriptions == null ? List.of() : List.copyOf(configDescriptions);
         this.configuration = configuration == null ? new Configuration()
                 : new Configuration(configuration.getProperties());
         this.templateUID = templateUID;
@@ -116,8 +111,7 @@ public class RuleImpl implements Rule {
     }
 
     @Override
-    @Nullable
-    public String getTemplateUID() {
+    public @Nullable String getTemplateUID() {
         return templateUID;
     }
 
@@ -131,8 +125,7 @@ public class RuleImpl implements Rule {
     }
 
     @Override
-    @Nullable
-    public String getName() {
+    public @Nullable String getName() {
         return name;
     }
 
@@ -160,8 +153,7 @@ public class RuleImpl implements Rule {
     }
 
     @Override
-    @Nullable
-    public String getDescription() {
+    public @Nullable String getDescription() {
         return description;
     }
 
@@ -261,13 +253,11 @@ public class RuleImpl implements Rule {
 
     @Override
     public List<Module> getModules() {
-        final List<Module> result;
-        List<Module> modules = new ArrayList<Module>();
+        List<Module> modules = new ArrayList<>();
         modules.addAll(triggers);
         modules.addAll(conditions);
         modules.addAll(actions);
-        result = Collections.unmodifiableList(modules);
-        return result;
+        return Collections.unmodifiableList(modules);
     }
 
     @Override
@@ -295,5 +285,4 @@ public class RuleImpl implements Rule {
         }
         return true;
     }
-
 }
